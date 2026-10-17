@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Builds
+dist/
+build/
+*.egg-info/
+
+# Tests & Caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Workspace transients
+workspace/uploads/*
+workspace/packages/*
+workspace/downloads/*
+!workspace/uploads/.gitkeep
+!workspace/packages/.gitkeep
+!workspace/downloads/.gitkeep
+
+# Environment
+.env
+.env.local
+.DS_Store
+Thumbs.db
