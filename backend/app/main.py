@@ -41,11 +41,13 @@ app.add_middleware(
 # Mount API routes
 app.include_router(api_router)
 
-# Mount static build of frontend if exists
+# Health check endpoint
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "DeployForge Engine", "version": "1.0.0"}
+
+# Mount static build of frontend if exists (must be mounted last to avoid shadowing API routes)
 frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "frontend", "dist")
 if os.path.exists(frontend_dist):
     app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok", "service": "DeployForge Engine", "version": "1.0.0"}
