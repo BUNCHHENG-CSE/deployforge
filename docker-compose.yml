@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: deployforge_postgres
+    restart: unless-stopped
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-deployforge}
+      POSTGRES_USER: ${POSTGRES_USER:-deployforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-deployforge_secret}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - deployforge_pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-deployforge} -d ${POSTGRES_DB:-deployforge}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - deployforge_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deployforge_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-deployforge}:${POSTGRES_PASSWORD:-deployforge_secret}@postgres:5432/${POSTGRES_DB:-deployforge}
+      PORT: 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - deployforge_workspace:/app/backend/workspace
+    networks:
+      - deployforge_network
+    profiles:
+      - full-stack # Allows running just db with 'docker compose up -d postgres' or full app
+
+volumes:
+  deployforge_pgdata:
+    name: deployforge_pgdata
+  deployforge_workspace:
+    name: deployforge_workspace
+
+networks:
+  deployforge_network:
+    name: deployforge_network
+    driver: bridge

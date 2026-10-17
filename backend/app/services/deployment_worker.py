@@ -20,12 +20,13 @@ class DeploymentJobManager:
     _subscribers: Dict[str, List[asyncio.Queue]] = {}
 
     @classmethod
-    def create_job(cls, req: AppDeployRequest) -> str:
+    def create_job(cls, req: AppDeployRequest, tenant_id: str = "tenant-simulated-contoso-corp") -> str:
         job_id = f"job-{uuid.uuid4().hex[:10]}"
         now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-        cls._jobs[job_id] = {
+        job_data = {
             "job_id": job_id,
+            "tenant_id": tenant_id,
             "app_name": req.app_name,
             "publisher": req.publisher,
             "version": req.version,
@@ -48,19 +49,92 @@ class DeploymentJobManager:
             "is_simulation": bool(req.is_simulation),
             "request": req.model_dump()
         }
+        cls._jobs[job_id] = job_data
         cls._subscribers[job_id] = []
+
+        # Persist to database
+        try:
+            from app.db.repository import JobRepository
+            JobRepository.create_job(job_data)
+        except Exception as e:
+            # Non-blocking if database is temporarily connecting
+            pass
+
         return job_id
 
     @classmethod
     def get_job(cls, job_id: str) -> Optional[Dict[str, Any]]:
-        return cls._jobs.get(job_id)
+        if job_id in cls._jobs:
+            return cls._jobs[job_id]
+        # Query database fallback
+        try:
+            from app.db.repository import JobRepository
+            db_job = JobRepository.get_job(job_id)
+            if db_job:
+                return {
+                    "job_id": db_job.job_id,
+                    "tenant_id": db_job.tenant_id,
+                    "app_name": db_job.app_name,
+                    "publisher": db_job.publisher,
+                    "version": db_job.version,
+                    "status": db_job.status,
+                    "progress": db_job.progress,
+                    "current_step": db_job.current_step,
+                    "logs": db_job.logs or [],
+                    "created_at": db_job.created_at.isoformat() if db_job.created_at else "",
+                    "completed_at": db_job.completed_at.isoformat() if db_job.completed_at else None,
+                    "error": db_job.error,
+                    "intunewin_filename": db_job.intunewin_filename,
+                    "intune_app_id": db_job.intune_app_id,
+                    "is_simulation": db_job.is_simulation
+                }
+        except Exception:
+            pass
+        return None
 
     @classmethod
     def list_jobs(cls) -> List[Dict[str, Any]]:
+        # Prefer database if available for durable history
+        try:
+            from app.db.repository import JobRepository
+            db_jobs = JobRepository.list_jobs(limit=50)
+            if db_jobs:
+                return [
+                    {
+                        "job_id": j.job_id,
+                        "tenant_id": j.tenant_id,
+                        "app_name": j.app_name,
+                        "publisher": j.publisher,
+                        "version": j.version,
+                        "status": j.status,
+                        "progress": j.progress,
+                        "current_step": j.current_step,
+                        "logs": j.logs or [],
+                        "created_at": j.created_at.isoformat() if j.created_at else "",
+                        "completed_at": j.completed_at.isoformat() if j.completed_at else None,
+                        "error": j.error,
+                        "intunewin_filename": j.intunewin_filename,
+                        "intune_app_id": j.intune_app_id,
+                        "is_simulation": j.is_simulation
+                    }
+                    for j in db_jobs
+                ]
+        except Exception:
+            pass
         return list(cls._jobs.values())[::-1]
 
     @classmethod
-    async def add_log(cls, job_id: str, message: str, level: str = "info", progress: Optional[int] = None):
+    async def add_log(
+        cls,
+        job_id: str,
+        message: str,
+        level: str = "info",
+        progress: Optional[int] = None,
+        status: Optional[str] = None,
+        intunewin_filename: Optional[str] = None,
+        intune_app_id: Optional[str] = None,
+        error: Optional[str] = None
+    ):
         job = cls._jobs.get(job_id)
         if not job:
             return
@@ -70,6 +144,15 @@ class DeploymentJobManager:
             job["progress"] = progress
             job["current_step"] = message
 
+        if status:
+            job["status"] = status
+        if intunewin_filename:
+            job["intunewin_filename"] = intunewin_filename
+        if intune_app_id:
+            job["intune_app_id"] = intune_app_id
+        if error:
+            job["error"] = error
+
         log_entry = {
             "timestamp": now_str,
             "message": message,
@@ -78,10 +161,27 @@ class DeploymentJobManager:
         }
         job["logs"].append(log_entry)
 
-        # Notify any active SSE queue listeners
+        # Persist log to PostgreSQL database
+        try:
+            from app.db.repository import JobRepository
+            JobRepository.append_log_and_update(
+                job_id=job_id,
+                message=message,
+                level=level,
+                progress=progress,
+                status=status,
+                intunewin_filename=intunewin_filename,
+                intune_app_id=intune_app_id,
+                error=error
+            )
+        except Exception:
+            pass
+
+        # Notify active SSE queue listeners
         queues = cls._subscribers.get(job_id, [])
         for q in queues:
             await q.put(job)
+
 
     @classmethod
     def subscribe(cls, job_id: str) -> asyncio.Queue:
@@ -155,7 +255,13 @@ class DeploymentJobManager:
                 setup_file_name=filename
             )
             job["intunewin_filename"] = out_intunewin_name
-            await cls.add_log(job_id, f"Successfully packaged .intunewin (AES-256 encrypted: {package_meta['encrypted_size']} bytes)", "success", 30)
+            await cls.add_log(
+                job_id,
+                f"Successfully packaged .intunewin (AES-256 encrypted: {package_meta['encrypted_size']} bytes)",
+                "success",
+                30,
+                intunewin_filename=out_intunewin_name
+            )
 
             # PHASE 3: CREATE WIN32 LOB APP IN INTUNE
             await cls.add_log(job_id, "Phase 3/6: Registering Win32 LOB App in Microsoft Intune...", "info", 35)
@@ -229,12 +335,27 @@ class DeploymentJobManager:
             }
 
             def progress_callback(msg: str, pct: int):
-                asyncio.create_task(cls.add_log(job_id, msg, "info", pct))
+                now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                if job_id in cls._jobs:
+                    j = cls._jobs[job_id]
+                    j["progress"] = pct
+                    j["current_step"] = msg
+                    j["logs"].append({
+                        "timestamp": now_str,
+                        "message": msg,
+                        "level": "info",
+                        "progress": pct
+                    })
+                    for q in cls._subscribers.get(job_id, []):
+                        try:
+                            q.put_nowait(j)
+                        except Exception:
+                            pass
 
             created_app = await graph_client.create_win32_lob_app(app_payload, progress_cb=progress_callback)
             app_id = created_app["id"]
             job["intune_app_id"] = app_id
-            await cls.add_log(job_id, f"Intune Mobile App object created: {app_id}", "success", 45)
+            await cls.add_log(job_id, f"Intune Mobile App object created: {app_id}", "success", 45, intune_app_id=app_id)
 
             # PHASE 4: CONTENT VERSION & AZURE BLOB UPLOAD
             await cls.add_log(job_id, "Phase 4/6: Creating content version & requesting Azure Blob upload SAS...", "info", 50)
@@ -278,10 +399,16 @@ class DeploymentJobManager:
             await cls.add_log(job_id, f"Phase 6/6: Assigning application to '{target_group}' (Intent: {intent})...", "info", 95)
 
             await graph_client.assign_app(app_id, target_group, intent, progress_cb=progress_callback)
-            await cls.add_log(job_id, f"Application successfully deployed and targeted in Intune! (Total time: ~5 seconds)", "success", 100)
 
             job["status"] = "completed"
             job["completed_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            await cls.add_log(
+                job_id,
+                "Application successfully deployed and targeted in Intune! (Total time: ~5 seconds)",
+                "success",
+                100,
+                status="completed"
+            )
 
         except Exception as e:
             import traceback
@@ -289,5 +416,11 @@ class DeploymentJobManager:
             job["status"] = "failed"
             job["error"] = str(e)
             job["completed_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
-            await cls.add_log(job_id, f"Deployment failed: {str(e)}", "error")
+            await cls.add_log(
+                job_id,
+                f"Deployment failed: {str(e)}",
+                "error",
+                status="failed",
+                error=str(e)
+            )
             await cls.add_log(job_id, f"Traceback:\n{err_details}", "error")

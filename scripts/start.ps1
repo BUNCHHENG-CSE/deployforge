@@ -30,9 +30,19 @@ if (-not (Test-Path $distFolder)) {
     Set-Location $rootDir
 }
 
+# Ensure WSL Docker PostgreSQL is running
+$dbCheck = (wsl docker inspect --format='{{json .State.Health.Status}}' deployforge_postgres 2>$null) -replace '"',''
+if ($dbCheck -ne "healthy") {
+    Write-Host "[*] Initializing optimized PostgreSQL in WSL Docker..." -ForegroundColor Yellow
+    & "$PSScriptRoot\wsl-docker-db.ps1" up
+} else {
+    Write-Host "[+] PostgreSQL 16 container is healthy." -ForegroundColor Green
+}
+
 Write-Host "[+] Starting DeployForge Unified Engine..." -ForegroundColor Green
 Write-Host "    Web Interface: http://localhost:8000" -ForegroundColor Cyan
 Write-Host "    API Documentation: http://localhost:8000/docs" -ForegroundColor Cyan
+Write-Host "    Database Status:   http://localhost:8000/api/db/health" -ForegroundColor Cyan
 Write-Host ""
 
 # Launch browser automatically

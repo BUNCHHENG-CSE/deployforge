@@ -13,12 +13,17 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.router import router as api_router
 from app.services.storage import StorageManager
+from app.db.session import init_db, check_db_health
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: ensure folders exist
+    # Startup: ensure folders exist and initialize PostgreSQL database schema
     StorageManager.init()
+    try:
+        init_db()
+    except Exception as e:
+        print(f"[!] Warning during DB startup initialization: {e}")
     yield
     # Shutdown logic if needed
 
@@ -41,10 +46,14 @@ app.add_middleware(
 # Mount API routes
 app.include_router(api_router)
 
-# Health check endpoint
+# Health check endpoints
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "DeployForge Engine", "version": "1.0.0"}
+
+@app.get("/api/db/health")
+def db_health_check():
+    return check_db_health()
 
 # Mount static build of frontend if exists (must be mounted last to avoid shadowing API routes)
 frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "frontend", "dist")

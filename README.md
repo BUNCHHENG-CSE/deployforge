@@ -32,7 +32,8 @@ Deploying a standard Windows desktop application (`.exe` or `.msi`) through Micr
 2. **Universal Custom Packager**: Drag and drop any custom `.exe` or `.msi`. The engine auto-inspects PE headers, detects the installer engine (Inno Setup, NSIS, WiX, MSI, InstallShield, Squirrel), extracts ProductCode GUIDs, and auto-generates silent install commands and detection rules.
 3. **Native Specification-Compliant `.intunewin` Engine**: Uses pure cryptographic algorithms (AES-256-CBC, random IV, HMAC-SHA256, PKCS7, and `Detection.xml`) without requiring Windows-only binaries.
 4. **Direct Graph API & Azure Blob Chunk Uploader**: Automatically creates `win32LobApp`, uploads encrypted content chunks to Azure Blob Storage via SAS URI, commits HMAC digest, and assigns to Entra ID groups.
-5. **Interactive Sandbox Simulation**: Test the entire packaging, detection rule generation, and mock Graph deployment without spending on Azure licenses.
+5. **Production-Tuned PostgreSQL Database & WSL Docker**: Fully optimized PostgreSQL 16 persistence with connection pooling (`QueuePool`), JSONB GIN indexing for detection rules and logs, and automated controller scripts for WSL Docker.
+6. **Interactive Sandbox Simulation**: Test the entire packaging, detection rule generation, and mock Graph deployment without spending on Azure licenses.
 
 ---
 
@@ -47,13 +48,21 @@ DeployForge
 │   ├── Intune Inventory (Live Win32 apps viewer)
 │   └── Tenant Modal (Device Code OAuth & Service Principal)
 │
-├── Backend (Python 3.12+ / FastAPI + Cryptography + Pydantic)
+├── Backend (Python 3.12+ / FastAPI + Cryptography + Pydantic + SQLAlchemy 2.0)
 │   ├── /api/catalog          -> Curated enterprise app repository
 │   ├── /api/upload           -> Binary inspection (PE headers & MSI database)
 │   ├── /api/deploy           -> Multi-phase asynchronous deployment pipeline
 │   ├── /api/jobs/{id}/stream -> Real-time Server-Sent Events (SSE) log stream
 │   ├── /api/tenant/*         -> Entra ID OAuth (Device Code & App Registration)
+│   ├── /api/db/health        -> PostgreSQL connection latency and pool stats
 │   └── /api/packages/download-> Download compiled .intunewin directly
+│
+├── Database Layer (PostgreSQL 16 Alpine + WSL Docker)
+│   ├── models.py             -> Tenants, DeploymentJobs, CustomPackages
+│   ├── repository.py         -> High-speed data access layer
+│   ├── session.py            -> Connection pool (QueuePool, pre-ping, auto-recycle)
+│   ├── postgresql.conf       -> Production tuning (shared_buffers, random_page_cost)
+│   └── init.sql              -> Schema, pgcrypto, GIN indexes, seed tenant
 │
 └── Core Engines
     ├── packager.py           -> Native AES-256-CBC + HMAC-SHA256 .intunewin generator
@@ -75,7 +84,46 @@ Simply execute the provided startup script:
 ```powershell
 .\scripts\start.ps1
 ```
-This automatically builds the frontend assets and starts the unified engine at **`http://localhost:8000`**.
+This automatically verifies the WSL Docker PostgreSQL container (booting it if not already running), compiles frontend assets, and starts the unified engine at **`http://localhost:8000`**.
+
+---
+
+## 🐘 PostgreSQL Optimization & WSL Docker Setup
+
+DeployForge uses an enterprise-tuned **PostgreSQL 16 Alpine** database running in WSL Docker on host port **`5433`** (configured specifically to eliminate conflicts with any existing PostgreSQL instance on port `5432`).
+
+### WSL Docker Controller Script
+A dedicated PowerShell management script is included in `scripts/wsl-docker-db.ps1`:
+
+```powershell
+# Start the optimized PostgreSQL container in WSL Docker
+.\scripts\wsl-docker-db.ps1 up
+
+# Check container health, query latency, and connection pool statistics
+.\scripts\wsl-docker-db.ps1 check
+
+# View active container status & JSON health output
+.\scripts\wsl-docker-db.ps1 status
+
+# Stream PostgreSQL logs
+.\scripts\wsl-docker-db.ps1 logs
+
+# Open interactive psql terminal inside the container
+.\scripts\wsl-docker-db.ps1 psql
+
+# Stop the database container
+.\scripts\wsl-docker-db.ps1 down
+```
+
+### Production Optimizations Applied (`docker/postgres/postgresql.conf`)
+- **Memory**: `shared_buffers = 256MB`, `effective_cache_size = 768MB`, `work_mem = 16MB`, `maintenance_work_mem = 64MB`.
+- **NVMe / SSD Storage**: `random_page_cost = 1.1`, `effective_io_concurrency = 200` (eliminates rotational penalty assumptions).
+- **WAL & Checkpoint Smoothing**: `checkpoint_completion_target = 0.9`, `min_wal_size = 512MB`, `max_wal_size = 2GB`, `wal_buffers = 16MB`.
+- **Parallel Workers**: `max_worker_processes = 4`, `max_parallel_workers_per_gather = 2`, `max_parallel_workers = 4`.
+- **JSONB Querying**: Schema features native **GIN (Generalized Inverted Index)** indexing on `detection_rules` and `logs` JSONB arrays for instant search and retrieval.
+- **Connection Pooling**: SQLAlchemy `QueuePool` with `pool_size=20`, `max_overflow=10`, `pool_pre_ping=True` (discards dead sockets), and `pool_recycle=1800` (prevents cloud firewall NAT timeouts).
+
+---
 
 ### 2. Manual Setup
 

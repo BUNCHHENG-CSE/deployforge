@@ -1,10 +1,17 @@
 import asyncio
 import base64
+import os
 import uuid
 import httpx
 from typing import Dict, Any, List, Optional, Callable
 
 GRAPH_BASE_URL = "https://graph.microsoft.com"
+
+def _sim_delay(seconds: float) -> float:
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return 0.01
+    return seconds
+
 
 class IntuneGraphClient:
     """
@@ -103,7 +110,7 @@ class IntuneGraphClient:
             progress_cb("Creating Win32 LOB App definition in Microsoft Intune...", 20)
 
         if self.is_simulation:
-            await asyncio.sleep(1.2)
+            await asyncio.sleep(_sim_delay(1.2))
             sim_id = f"sim-{uuid.uuid4().hex[:12]}"
             return {
                 "id": sim_id,
@@ -125,7 +132,7 @@ class IntuneGraphClient:
             progress_cb("Creating Intune content version container...", 35)
 
         if self.is_simulation:
-            await asyncio.sleep(0.8)
+            await asyncio.sleep(_sim_delay(0.8))
             return {"id": "1"}
 
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -149,7 +156,7 @@ class IntuneGraphClient:
             progress_cb("Requesting Azure Blob Storage upload URI from Graph API...", 50)
 
         if self.is_simulation:
-            await asyncio.sleep(1.0)
+            await asyncio.sleep(_sim_delay(1.0))
             return {
                 "id": f"file-sim-{uuid.uuid4().hex[:8]}",
                 "azureStorageUri": "https://intunestorage.blob.core.windows.net/simulation-block?sas=mock",
@@ -184,7 +191,7 @@ class IntuneGraphClient:
         if self.is_simulation:
             # Simulate network upload in steps
             for pct in range(65, 85, 5):
-                await asyncio.sleep(0.4)
+                await asyncio.sleep(_sim_delay(0.4))
                 if progress_cb:
                     progress_cb(f"Uploading blocks to Azure Blob Storage ({pct}%)...", pct)
             return
@@ -211,7 +218,7 @@ class IntuneGraphClient:
             progress_cb("Committing file and verifying HMAC cryptographic digest with Intune...", 85)
 
         if self.is_simulation:
-            await asyncio.sleep(1.0)
+            await asyncio.sleep(_sim_delay(1.0))
             return
 
         body = {
@@ -234,7 +241,7 @@ class IntuneGraphClient:
             progress_cb("Finalizing application version commit in Intune...", 90)
 
         if self.is_simulation:
-            await asyncio.sleep(0.8)
+            await asyncio.sleep(_sim_delay(0.8))
             return
 
         body = {
@@ -259,7 +266,7 @@ class IntuneGraphClient:
             progress_cb(f"Assigning package to target: {target_group_id} (Intent: {intent})...", 95)
 
         if self.is_simulation:
-            await asyncio.sleep(0.7)
+            await asyncio.sleep(_sim_delay(0.7))
             if progress_cb:
                 progress_cb("Deployment and assignment successfully completed!", 100)
             return {"id": "sim-assign-123", "target": target_group_id, "intent": intent}
