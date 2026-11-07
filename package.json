@@ -1,0 +1,40 @@
+{
+  "name": "tct-deployforge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TCT DeployForge — Next.js Full-Stack Intune One-Click App Deploy Platform (Prisma + Neon PostgreSQL & Local SQLite)",
+  "scripts": {
+    "dev": "bun run db:prepare && next dev",
+    "build": "bun run db:prepare && next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:prepare": "bun run scripts/db-prepare.mjs",
+    "db:push": "bun run db:prepare && prisma db push",
+    "db:generate": "bun run db:prepare && prisma generate",
+    "db:seed": "bun run prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.0",
+    "archiver": "^8.0.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.61.0",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/archiver": "^8.0.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.3",
+    "prisma": "^6.4.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "packageManager": "bun@1.4.0"
+}

@@ -65,6 +65,15 @@ class TenantRepository:
             if not db:
                 session.close()
 
+    @classmethod
+    def list_tenants(cls, limit: int = 50, db: Optional[Session] = None) -> List[Tenant]:
+        session = db or SessionLocal()
+        try:
+            return session.query(Tenant).order_by(desc(Tenant.created_at)).limit(limit).all()
+        finally:
+            if not db:
+                session.close()
+
 class JobRepository:
     @classmethod
     def create_job(cls, job_dict: Dict[str, Any], db: Optional[Session] = None) -> DeploymentJob:
@@ -184,6 +193,50 @@ class JobRepository:
             session.commit()
             session.refresh(job)
             return job
+        finally:
+            if not db:
+                session.close()
+
+    @classmethod
+    def get_job_stats(cls, tenant_id: Optional[str] = None, db: Optional[Session] = None) -> Dict[str, Any]:
+        """Calculates deployment job metrics and status breakdown."""
+        session = db or SessionLocal()
+        try:
+            from sqlalchemy import func
+            q = session.query(DeploymentJob)
+            if tenant_id:
+                q = q.filter_by(tenant_id=tenant_id)
+            total_count = q.count()
+
+            status_query = session.query(DeploymentJob.status, func.count(DeploymentJob.job_id))
+            if tenant_id:
+                status_query = status_query.filter(DeploymentJob.tenant_id == tenant_id)
+            status_counts = status_query.group_by(DeploymentJob.status).all()
+
+            status_breakdown = {status: count for status, count in status_counts}
+
+            return {
+                "total_jobs": total_count,
+                "completed": status_breakdown.get("completed", 0),
+                "running": status_breakdown.get("running", 0),
+                "pending": status_breakdown.get("pending", 0),
+                "failed": status_breakdown.get("failed", 0),
+                "status_breakdown": status_breakdown
+            }
+        finally:
+            if not db:
+                session.close()
+
+    @classmethod
+    def delete_job(cls, job_id: str, db: Optional[Session] = None) -> Optional[DeploymentJob]:
+        session = db or SessionLocal()
+        try:
+            job = session.query(DeploymentJob).filter_by(job_id=job_id).first()
+            if job:
+                session.delete(job)
+                session.commit()
+                return job
+            return None
         finally:
             if not db:
                 session.close()

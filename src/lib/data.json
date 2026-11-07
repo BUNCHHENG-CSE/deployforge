@@ -1,0 +1,942 @@
+{
+  "catalog": [
+    {
+      "id": "google-chrome",
+      "name": "Google Chrome (Enterprise)",
+      "publisher": "Google LLC",
+      "category": "Web Browsers",
+      "version": "Latest (Auto-Updating)",
+      "architecture": "x64",
+      "icon": "https://www.google.com/chrome/static/images/chrome-logo.svg",
+      "description": "Fast, secure, and configurable web browser enterprise package with enterprise policy support.",
+      "download_url": "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B6F3E6101-7667-33E1-BEF8-FE22D54E480C%7D%26lang%3Den%26browser%3D4%26usagestats%3D0%26appname%3DGoogle%2520Chrome%26needsadmin%3Dtrue%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Dempty/update2/installers/ChromeStandaloneSetup64.exe",
+      "filename": "ChromeStandaloneSetup64.exe",
+      "install_command": "ChromeStandaloneSetup64.exe /silent /install",
+      "uninstall_command": "msiexec /x {8A69D345-D564-463C-AFF1-A69D9E530F96} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Google\\Chrome\\Application",
+        "fileOrFolderName": "chrome.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "mozilla-firefox",
+      "name": "Mozilla Firefox (MSI)",
+      "publisher": "Mozilla",
+      "category": "Web Browsers",
+      "version": "Latest ESR / Stable",
+      "architecture": "x64",
+      "icon": "https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.svg",
+      "description": "Privacy-focused browser packaged as enterprise MSI with automated silent install.",
+      "download_url": "https://download.mozilla.org/?product=firefox-msi-latest-ssl&os=win64&lang=en-US",
+      "filename": "FirefoxSetup.msi",
+      "install_command": "msiexec /i \"FirefoxSetup.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {1A62423A-6441-4EF6-A06F-8514A70809FD} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Mozilla Firefox",
+        "fileOrFolderName": "firefox.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "brave-browser",
+      "name": "Brave Browser",
+      "publisher": "Brave Software",
+      "category": "Web Browsers",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://brave.com/static-assets/images/brave-logo-sans-text.svg",
+      "description": "Chromium-based privacy browser that blocks ads and cross-site trackers by default.",
+      "download_url": "https://laptop-updates.brave.com/latest/winx64",
+      "filename": "BraveBrowserStandaloneSetup.exe",
+      "install_command": "BraveBrowserStandaloneSetup.exe /silent /install",
+      "uninstall_command": "msiexec /x {AFE6A652-E892-42E0-AE48-4384ACDE3B4F} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\BraveSoftware\\Brave-Browser\\Application",
+        "fileOrFolderName": "brave.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "vscode",
+      "name": "Visual Studio Code (System Installer)",
+      "publisher": "Microsoft Corporation",
+      "category": "Developer Tools",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://code.visualstudio.com/assets/favicon.ico",
+      "description": "Streamlined code editor with support for debugging, task running, and version control.",
+      "download_url": "https://update.code.visualstudio.com/latest/win32-x64/stable",
+      "filename": "VSCodeSetup-x64.exe",
+      "install_command": "VSCodeSetup-x64.exe /VERYSILENT /NORESTART /MERGETASKS=\"!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles,addtopath\"",
+      "uninstall_command": "\"%ProgramFiles%\\Microsoft VS Code\\unins000.exe\" /VERYSILENT /NORESTART",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Microsoft VS Code",
+        "fileOrFolderName": "Code.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "git",
+      "name": "Git for Windows",
+      "publisher": "The Git Development Community",
+      "category": "Developer Tools",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://git-scm.com/images/logos/logomark-orange@2x.png",
+      "description": "Fast, scalable, distributed revision control system with Git Bash and credential manager.",
+      "download_url": "https://github.com/git-for-windows/git/releases/latest/download/Git-64-bit.exe",
+      "filename": "Git-64-bit.exe",
+      "install_command": "Git-64-bit.exe /VERYSILENT /NORESTART /NOCANCEL /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS",
+      "uninstall_command": "\"%ProgramFiles%\\Git\\unins000.exe\" /VERYSILENT /NORESTART",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Git\\cmd",
+        "fileOrFolderName": "git.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "python-3",
+      "name": "Python 3 Runtime",
+      "publisher": "Python Software Foundation",
+      "category": "Developer Tools",
+      "version": "3.12 / 3.14",
+      "architecture": "x64",
+      "icon": "https://www.python.org/static/favicon.ico",
+      "description": "High-level programming language environment with pip, IDLE, and standard library.",
+      "download_url": "https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe",
+      "filename": "python-setup.exe",
+      "install_command": "python-setup.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0",
+      "uninstall_command": "python-setup.exe /uninstall /quiet",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "registry",
+        "keyPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\3.12\\InstallPath",
+        "valueName": "",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "notepad-plus-plus",
+      "name": "Notepad++",
+      "publisher": "Don Ho",
+      "category": "Developer Tools",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://notepad-plus-plus.org/favicon.ico",
+      "description": "Free and open-source source code editor and Notepad replacement supporting syntax highlighting.",
+      "download_url": "https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v8.6.5/npp.8.6.5.Installer.x64.exe",
+      "filename": "npp-installer.x64.exe",
+      "install_command": "npp-installer.x64.exe /S",
+      "uninstall_command": "\"%ProgramFiles%\\Notepad++\\uninstall.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Notepad++",
+        "fileOrFolderName": "notepad++.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "nodejs-lts",
+      "name": "Node.js (LTS)",
+      "publisher": "OpenJS Foundation",
+      "category": "Developer Tools",
+      "version": "LTS",
+      "architecture": "x64",
+      "icon": "https://nodejs.org/static/images/favicons/favicon.png",
+      "description": "JavaScript runtime built on Chrome's V8 JavaScript engine for modern server applications.",
+      "download_url": "https://nodejs.org/dist/v20.12.2/node-v20.12.2-x64.msi",
+      "filename": "node-v20-x64.msi",
+      "install_command": "msiexec /i \"node-v20-x64.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {3C83D4BF-3A79-43DC-855A-5C91FE84E771} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\nodejs",
+        "fileOrFolderName": "node.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "docker-desktop",
+      "name": "Docker Desktop",
+      "publisher": "Docker Inc.",
+      "category": "Developer Tools",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://www.docker.com/wp-content/uploads/2023/04/cropped-Docker-favicon-32x32.png",
+      "description": "Container development environment for building, running, and managing containerized applications.",
+      "download_url": "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe",
+      "filename": "DockerDesktopInstaller.exe",
+      "install_command": "DockerDesktopInstaller.exe install --quiet --accept-license",
+      "uninstall_command": "DockerDesktopInstaller.exe uninstall --quiet",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Docker\\Docker",
+        "fileOrFolderName": "Docker Desktop.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "publisher": "Postman Inc.",
+      "category": "Developer Tools",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://assets.postman.com/common-assets/postman-logo-icon.svg",
+      "description": "API platform for building and using APIs, streamlining collaboration and automated testing.",
+      "download_url": "https://dl.pstmn.io/download/latest/win64",
+      "filename": "Postman-win64-Setup.exe",
+      "install_command": "Postman-win64-Setup.exe --silent",
+      "uninstall_command": "\"%LocalAppData%\\Postman\\Update.exe\" --uninstall -s",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Postman",
+        "fileOrFolderName": "Postman.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "zoom-workplace",
+      "name": "Zoom Workplace (64-bit MSI)",
+      "publisher": "Zoom Video Communications, Inc.",
+      "category": "Communication",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://explore.zoom.us/media/zoom-logo.svg",
+      "description": "Enterprise unified communication platform for video meetings, team chat, and phone.",
+      "download_url": "https://zoom.us/client/latest/ZoomInstallerFull.msi?archType=x64",
+      "filename": "ZoomInstallerFull.msi",
+      "install_command": "msiexec /i \"ZoomInstallerFull.msi\" /qn /norestart ZoomAutoUpdate=1",
+      "uninstall_command": "msiexec /x {94B1B563-B879-4B52-BFDF-E8C9463CDCA3} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Zoom\\bin",
+        "fileOrFolderName": "Zoom.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "slack-msi",
+      "name": "Slack (Machine-Wide MSI)",
+      "publisher": "Slack Technologies, LLC",
+      "category": "Communication",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png",
+      "description": "Team messaging and collaboration hub with enterprise channels and integrations.",
+      "download_url": "https://slack.com/ssb/download-win64-msi",
+      "filename": "SlackSetup.msi",
+      "install_command": "msiexec /i \"SlackSetup.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {4359D91D-40C2-4E57-B2A8-E0B33A449C16} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Slack",
+        "fileOrFolderName": "slack.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "discord",
+      "name": "Discord",
+      "publisher": "Discord Inc.",
+      "category": "Communication",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://discord.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg",
+      "description": "Voice, video, and text communication service for teams, communities, and developers.",
+      "download_url": "https://discord.com/api/download?platform=win",
+      "filename": "DiscordSetup.exe",
+      "install_command": "DiscordSetup.exe --silent",
+      "uninstall_command": "\"%LocalAppData%\\Discord\\Update.exe\" --uninstall -s",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramData%\\Discord",
+        "fileOrFolderName": "app.ico",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "7-zip",
+      "name": "7-Zip (64-bit MSI)",
+      "publisher": "Igor Pavlov",
+      "category": "Utilities",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://www.7-zip.org/favicon.ico",
+      "description": "High-compression file archiver supporting 7z, XZ, BZIP2, GZIP, TAR, ZIP, and WIM formats.",
+      "download_url": "https://www.7-zip.org/a/7z2404-x64.msi",
+      "filename": "7z-x64.msi",
+      "install_command": "msiexec /i \"7z-x64.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {23170F69-40C1-2702-2404-000001000000} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\7-Zip",
+        "fileOrFolderName": "7z.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "powertoys",
+      "name": "Microsoft PowerToys",
+      "publisher": "Microsoft Corporation",
+      "category": "Utilities",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://raw.githubusercontent.com/microsoft/PowerToys/main/doc/images/overview/PowerToys_logo.png",
+      "description": "Set of utilities for power users to tune and streamline Windows experience for greater productivity.",
+      "download_url": "https://github.com/microsoft/PowerToys/releases/latest/download/PowerToysSetup-0.80.1-x64.exe",
+      "filename": "PowerToysSetup-x64.exe",
+      "install_command": "PowerToysSetup-x64.exe /quiet /norestart",
+      "uninstall_command": "PowerToysSetup-x64.exe /uninstall /quiet /norestart",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\PowerToys",
+        "fileOrFolderName": "PowerToys.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "wireshark",
+      "name": "Wireshark Network Analyzer",
+      "publisher": "Wireshark Foundation",
+      "category": "Utilities",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://www.wireshark.org/assets/icons/wireshark.png",
+      "description": "World's foremost and widely-used network protocol analyzer for deep packet inspection.",
+      "download_url": "https://2.na.dl.wireshark.org/win64/Wireshark-win64-4.2.4.exe",
+      "filename": "Wireshark-win64.exe",
+      "install_command": "Wireshark-win64.exe /S /desktopicon=yes /quicklaunchicon=no",
+      "uninstall_command": "\"%ProgramFiles%\\Wireshark\\uninstall.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Wireshark",
+        "fileOrFolderName": "Wireshark.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "putty",
+      "name": "PuTTY (SSH and Telnet Client)",
+      "publisher": "Simon Tatham",
+      "category": "Utilities",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://www.putty.org/favicon.ico",
+      "description": "Open source SSH and telnet client for Windows network administration.",
+      "download_url": "https://the.earth.li/~sgtatham/putty/latest/w64/putty-64bit-0.81-installer.msi",
+      "filename": "putty-64bit.msi",
+      "install_command": "msiexec /i \"putty-64bit.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {5B3B737A-9A25-45C6-9D12-9A4B3141F935} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\PuTTY",
+        "fileOrFolderName": "putty.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "winscp",
+      "name": "WinSCP",
+      "publisher": "Martin Prikryl",
+      "category": "Utilities",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://winscp.net/favicon.ico",
+      "description": "Popular SFTP client and FTP client for Windows, facilitating secure file transfers.",
+      "download_url": "https://winscp.net/download/WinSCP-6.3.3-Setup.exe",
+      "filename": "WinSCP-Setup.exe",
+      "install_command": "WinSCP-Setup.exe /VERYSILENT /NORESTART /ALLUSERS",
+      "uninstall_command": "\"%ProgramFiles(x86)%\\WinSCP\\unins000.exe\" /VERYSILENT /NORESTART",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles(x86)%\\WinSCP",
+        "fileOrFolderName": "WinSCP.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": true
+      }
+    },
+    {
+      "id": "sysinternals-suite",
+      "name": "Sysinternals Suite",
+      "publisher": "Microsoft Corporation",
+      "category": "Utilities",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://learn.microsoft.com/en-us/media/logos/logo-ms-social.png",
+      "description": "Complete suite of troubleshooting utilities: Process Explorer, Autoruns, ProcMon, TCPView.",
+      "download_url": "https://download.sysinternals.com/files/SysinternalsSuite.zip",
+      "filename": "SysinternalsSuite.zip",
+      "install_command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Expand-Archive -Path .\\SysinternalsSuite.zip -DestinationPath '$env:ProgramFiles\\Sysinternals' -Force\"",
+      "uninstall_command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"Remove-Item -Path '$env:ProgramFiles\\Sysinternals' -Recurse -Force\"",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Sysinternals",
+        "fileOrFolderName": "procexp.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "bitwarden",
+      "name": "Bitwarden Desktop",
+      "publisher": "Bitwarden Inc.",
+      "category": "Security",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://bitwarden.com/images/icon_192.png",
+      "description": "Secure and open-source password manager for enterprise credential governance.",
+      "download_url": "https://vault.bitwarden.com/download/?app=desktop&platform=windows",
+      "filename": "Bitwarden-Installer.exe",
+      "install_command": "Bitwarden-Installer.exe /allusers /S",
+      "uninstall_command": "\"%ProgramFiles%\\Bitwarden\\Uninstall Bitwarden.exe\" /allusers /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Bitwarden",
+        "fileOrFolderName": "Bitwarden.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "keepassxc",
+      "name": "KeePassXC (MSI)",
+      "publisher": "KeePassXC Team",
+      "category": "Security",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://keepassxc.org/favicon.ico",
+      "description": "Community fork of KeePass with modern cross-platform native encryption.",
+      "download_url": "https://github.com/keepassxreboot/keepassxc/releases/latest/download/KeePassXC-2.7.7-Win64.msi",
+      "filename": "KeePassXC-Win64.msi",
+      "install_command": "msiexec /i \"KeePassXC-Win64.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {35F0DF29-07D7-4C3D-8FD0-2B3830E97711} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\KeePassXC",
+        "fileOrFolderName": "KeePassXC.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "cloudflare-warp",
+      "name": "Cloudflare WARP (Zero Trust Client)",
+      "publisher": "Cloudflare Inc.",
+      "category": "Security",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://www.cloudflare.com/img/favicon/favicon-32x32.png",
+      "description": "Next-gen zero trust client replacing legacy corporate VPNs with secure gateway.",
+      "download_url": "https://1111-releases.cloudflareclient.com/windows/Cloudflare_WARP_Release-x64.msi",
+      "filename": "Cloudflare_WARP_Release-x64.msi",
+      "install_command": "msiexec /i \"Cloudflare_WARP_Release-x64.msi\" /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x {DFCA608A-3870-4E16-92F0-277A6C3BF559} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Cloudflare\\Cloudflare WARP",
+        "fileOrFolderName": "Cloudflare WARP.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "vlc-media-player",
+      "name": "VLC Media Player (64-bit)",
+      "publisher": "VideoLAN",
+      "category": "Media",
+      "version": "Latest",
+      "architecture": "x64",
+      "icon": "https://images.videolan.org/images/icons/favicon.ico",
+      "description": "Free, open-source cross-platform multimedia player that plays most multimedia files.",
+      "download_url": "https://get.videolan.org/vlc/3.0.20/win64/vlc-3.0.20-win64.exe",
+      "filename": "vlc-win64.exe",
+      "install_command": "vlc-win64.exe /L=1033 /S",
+      "uninstall_command": "\"%ProgramFiles%\\VideoLAN\\VLC\\uninstall.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\VideoLAN\\VLC",
+        "fileOrFolderName": "vlc.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    },
+    {
+      "id": "adobe-acrobat-reader",
+      "name": "Adobe Acrobat Reader DC",
+      "publisher": "Adobe Systems",
+      "category": "Documents & PDF",
+      "version": "Continuous",
+      "architecture": "x64",
+      "icon": "https://www.adobe.com/favicon.ico",
+      "description": "Industry standard for viewing, signing, and annotating PDF documents.",
+      "download_url": "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2400120604/AcroRdrDCx642400120604_en_US.exe",
+      "filename": "AcroRdrDCx64.exe",
+      "install_command": "AcroRdrDCx64.exe /sAll /rs /msi EULA_ACCEPT=YES",
+      "uninstall_command": "msiexec /x {AC76BA86-1033-FFFF-7760-BC15014EA700} /qn",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Adobe\\Acrobat DC\\Acrobat",
+        "fileOrFolderName": "Acrobat.exe",
+        "detectionType": "exists",
+        "operator": "greaterThanOrEqual",
+        "check32BitOn64System": false
+      }
+    }
+  ],
+  "winget": [
+    {
+      "id": "SlackTechnologies.Slack",
+      "name": "Slack",
+      "publisher": "Slack Technologies, LLC",
+      "category": "Communication",
+      "version": "4.39.213",
+      "architecture": "x64",
+      "icon": "https://a.slack-edge.com/80588/marketing/img/meta/slack_hash_256.png",
+      "description": "Slack is a messaging app for business that connects people to the information that they need.",
+      "download_url": "https://downloads.slack-edge.com/desktop-releases/windows/x64/4.39.213/SlackSetup.msi",
+      "filename": "SlackSetup.msi",
+      "install_command": "msiexec /i SlackSetup.msi /qn /norestart ALLUSERS=1",
+      "uninstall_command": "msiexec /x SlackSetup.msi /qn /norestart",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "registry",
+        "keyPath": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{SlackMSI}",
+        "valueName": "DisplayVersion",
+        "detectionValue": "4.39.213"
+      }
+    },
+    {
+      "id": "Docker.DockerDesktop",
+      "name": "Docker Desktop",
+      "publisher": "Docker Inc.",
+      "category": "Developer Tools",
+      "version": "4.34.2",
+      "architecture": "x64",
+      "icon": "https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png",
+      "description": "Docker Desktop is an easy-to-install application that enables you to build and share containerized applications.",
+      "download_url": "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe",
+      "filename": "Docker_Desktop_Installer.exe",
+      "install_command": "\"Docker_Desktop_Installer.exe\" install --quiet --accept-license",
+      "uninstall_command": "\"Docker_Desktop_Installer.exe\" uninstall --quiet",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Docker\\Docker",
+        "fileOrFolderName": "Docker Desktop.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "Postman.Postman",
+      "name": "Postman",
+      "publisher": "Postman Inc.",
+      "category": "Developer Tools",
+      "version": "11.14.0",
+      "architecture": "x64",
+      "icon": "https://www.postman.com/_ar-assets/images/favicon-1-32x32.png",
+      "description": "Postman is an API platform for developers to design, build, test, and iterate their APIs.",
+      "download_url": "https://dl.pstmn.io/download/latest/win64",
+      "filename": "Postman-win64-setup.exe",
+      "install_command": "\"Postman-win64-setup.exe\" --silent",
+      "uninstall_command": "\"Postman-win64-setup.exe\" --uninstall --silent",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%LocalAppData%\\Postman",
+        "fileOrFolderName": "Postman.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "Hashicorp.Terraform",
+      "name": "Terraform",
+      "publisher": "HashiCorp",
+      "category": "Cloud & DevOps",
+      "version": "1.9.8",
+      "architecture": "x64",
+      "icon": "https://www.datocms-assets.com/2885/1620155116-brandhcterraformprimarysymbolcolor.svg",
+      "description": "Terraform is an open-source infrastructure as code software tool created by HashiCorp.",
+      "download_url": "https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_windows_amd64.zip",
+      "filename": "terraform.exe",
+      "install_command": "powershell.exe -Command \"Expand-Archive terraform.zip -DestinationPath C:\\ProgramData\\Terraform; [Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\ProgramData\\Terraform', [EnvironmentVariableTarget]::Machine)\"",
+      "uninstall_command": "powershell.exe -Command \"Remove-Item -Recurse -Force C:\\ProgramData\\Terraform\"",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "C:\\ProgramData\\Terraform",
+        "fileOrFolderName": "terraform.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "Notion.Notion",
+      "name": "Notion",
+      "publisher": "Notion Labs, Incorporated",
+      "category": "Productivity",
+      "version": "3.12.0",
+      "architecture": "x64",
+      "icon": "https://www.notion.so/front-static/logo-ios.png",
+      "description": "A new tool that blends your everyday work apps into one. It's the all-in-one workspace for notes, tasks, wikis, and databases.",
+      "download_url": "https://desktop-release.notion-static.com/Notion%20Setup%203.12.0.exe",
+      "filename": "NotionSetup.exe",
+      "install_command": "\"NotionSetup.exe\" /S",
+      "uninstall_command": "\"%LocalAppData%\\Programs\\Notion\\Uninstall Notion.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Notion",
+        "fileOrFolderName": "Notion.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "VideoLAN.VLC",
+      "name": "VLC Media Player",
+      "publisher": "VideoLAN",
+      "category": "Multimedia",
+      "version": "3.0.21",
+      "architecture": "x64",
+      "icon": "https://images.videolan.org/images/icons-VLC/vlc.mini.svg",
+      "description": "VLC is a free and open source cross-platform multimedia player and framework that plays most multimedia files.",
+      "download_url": "https://get.videolan.org/vlc/3.0.21/win64/vlc-3.0.21-win64.exe",
+      "filename": "vlc-3.0.21-win64.exe",
+      "install_command": "\"vlc-3.0.21-win64.exe\" /L=1033 /S",
+      "uninstall_command": "\"%ProgramFiles%\\VideoLAN\\VLC\\uninstall.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "registry",
+        "keyPath": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\VLC media player",
+        "valueName": "DisplayVersion",
+        "detectionValue": "3.0.21"
+      }
+    },
+    {
+      "id": "Discord.Discord",
+      "name": "Discord",
+      "publisher": "Discord Inc.",
+      "category": "Communication",
+      "version": "1.0.9166",
+      "architecture": "x64",
+      "icon": "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png",
+      "description": "Voice, video and text chat app used by tens of millions of people to talk and hang out with their communities and friends.",
+      "download_url": "https://discord.com/api/download?platform=win",
+      "filename": "DiscordSetup.exe",
+      "install_command": "\"DiscordSetup.exe\" -s",
+      "uninstall_command": "\"%LocalAppData%\\Discord\\Update.exe\" --uninstall -s",
+      "install_behavior": "user",
+      "detection_rule": {
+        "type": "file",
+        "path": "%LocalAppData%\\Discord",
+        "fileOrFolderName": "Update.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "BlenderFoundation.Blender",
+      "name": "Blender 3D",
+      "publisher": "Blender Foundation",
+      "category": "Graphics & Design",
+      "version": "4.2.3",
+      "architecture": "x64",
+      "icon": "https://download.blender.org/branding/blender_logo_socket.png",
+      "description": "Blender is the free and open source 3D creation suite supporting modeling, rigging, animation, simulation, rendering, and compositing.",
+      "download_url": "https://download.blender.org/release/Blender4.2/blender-4.2.3-windows-x64.msi",
+      "filename": "blender-4.2.3-windows-x64.msi",
+      "install_command": "msiexec /i blender-4.2.3-windows-x64.msi /qn /norestart",
+      "uninstall_command": "msiexec /x blender-4.2.3-windows-x64.msi /qn /norestart",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Blender Foundation\\Blender 4.2",
+        "fileOrFolderName": "blender.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "Bitwarden.Bitwarden",
+      "name": "Bitwarden",
+      "publisher": "Bitwarden Inc.",
+      "category": "Security",
+      "version": "2024.10.0",
+      "architecture": "x64",
+      "icon": "https://bitwarden.com/images/icon_desktop.png",
+      "description": "Open source password management solution for individuals, teams, and business organizations.",
+      "download_url": "https://vault.bitwarden.com/download/?app=desktop&platform=windows",
+      "filename": "Bitwarden-Installer.exe",
+      "install_command": "\"Bitwarden-Installer.exe\" /S /allusers",
+      "uninstall_command": "\"%ProgramFiles%\\Bitwarden\\Uninstall Bitwarden.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\Bitwarden",
+        "fileOrFolderName": "Bitwarden.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "WiresharkFoundation.Wireshark",
+      "name": "Wireshark Network Analyzer",
+      "publisher": "Wireshark Foundation",
+      "category": "IT Admin & SecOps",
+      "version": "4.4.1",
+      "architecture": "x64",
+      "icon": "https://www.wireshark.org/assets/images/wireshark-fin.png",
+      "description": "The world's foremost and widely-used network protocol analyzer for network troubleshooting, analysis, and protocol development.",
+      "download_url": "https://1.na.dl.wireshark.org/win64/Wireshark-4.4.1-x64.exe",
+      "filename": "Wireshark-4.4.1-x64.exe",
+      "install_command": "\"Wireshark-4.4.1-x64.exe\" /S /desktopicon=yes",
+      "uninstall_command": "\"%ProgramFiles%\\Wireshark\\uninstall.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "registry",
+        "keyPath": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Wireshark",
+        "valueName": "DisplayVersion",
+        "detectionValue": "4.4.1"
+      }
+    },
+    {
+      "id": "dbeaver.dbeaver",
+      "name": "DBeaver Community",
+      "publisher": "DBeaver Corp",
+      "category": "Developer Tools",
+      "version": "24.2.3",
+      "architecture": "x64",
+      "icon": "https://dbeaver.io/wp-content/uploads/2015/09/beaver-head.png",
+      "description": "Free multi-platform database tool for developers, database administrators, and analysts supporting SQL databases.",
+      "download_url": "https://github.com/dbeaver/dbeaver/releases/download/24.2.3/dbeaver-ce-24.2.3-x86_64-setup.exe",
+      "filename": "dbeaver-ce-24.2.3-x86_64-setup.exe",
+      "install_command": "\"dbeaver-ce-24.2.3-x86_64-setup.exe\" /S /allusers",
+      "uninstall_command": "\"%ProgramFiles%\\DBeaver\\uninstall.exe\" /S",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "file",
+        "path": "%ProgramFiles%\\DBeaver",
+        "fileOrFolderName": "dbeaver.exe",
+        "detectionType": "exists"
+      }
+    },
+    {
+      "id": "PuTTY.PuTTY",
+      "name": "PuTTY SSH & Telnet Client",
+      "publisher": "Simon Tatham",
+      "category": "IT Admin & SecOps",
+      "version": "0.81.0",
+      "architecture": "x64",
+      "icon": "https://www.chiark.greenend.org.uk/~sgtatham/putty/putty.png",
+      "description": "A free implementation of SSH and Telnet for Windows and Unix platforms.",
+      "download_url": "https://the.earth.li/~sgtatham/putty/0.81/w64/putty-64bit-0.81-installer.msi",
+      "filename": "putty-64bit-0.81-installer.msi",
+      "install_command": "msiexec /i putty-64bit-0.81-installer.msi /qn /norestart",
+      "uninstall_command": "msiexec /x putty-64bit-0.81-installer.msi /qn /norestart",
+      "install_behavior": "system",
+      "detection_rule": {
+        "type": "registry",
+        "keyPath": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{PuTTY}",
+        "valueName": "DisplayName",
+        "detectionValue": "PuTTY"
+      }
+    }
+  ],
+  "scripts": [
+    {
+      "id": "ps-debloat-windows11",
+      "name": "Debloat Windows 11 Enterprise",
+      "category": "System Optimization",
+      "publisher": "DeployForge IT Toolkit",
+      "version": "1.4.0",
+      "description": "Removes consumer bloatware, pre-installed promotional apps (Xbox, Clipchamp, Solitaire, TikTok), and disables Bing search in Start Menu.",
+      "icon": "Trash2",
+      "script": "<#\n.SYNOPSIS\n    Debloat Windows 11 Enterprise Image\n.DESCRIPTION\n    Removes consumer pre-installed UWP packages and disables consumer diagnostics.\n#>\n$ErrorActionPreference = 'SilentlyContinue'\n\n$bloatware = @(\n    \"*Microsoft.BingNews*\",\n    \"*Microsoft.BingWeather*\",\n    \"*Microsoft.GamingApp*\",\n    \"*Microsoft.GetHelp*\",\n    \"*Microsoft.Getstarted*\",\n    \"*Microsoft.MicrosoftSolitaireCollection*\",\n    \"*Microsoft.Todos*\",\n    \"*Microsoft.YourPhone*\",\n    \"*Microsoft.Xbox*\",\n    \"*Clipchamp.Clipchamp*\"\n)\n\nWrite-Output \"[*] Removing consumer provisioned packages...\"\nforeach ($app in $bloatware) {\n    Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue\n    Get-AppxProvisionedPackage -Online | Where-Object { $_.PackageName -like $app } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue\n}\n\n# Disable Bing in Start Menu\n$searchKey = \"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search\"\nif (!(Test-Path $searchKey)) { New-Item -Path $searchKey -Force | Out-Null }\nSet-ItemProperty -Path $searchKey -Name \"DisableWebSearch\" -Value 1 -Type DWord -Force\nSet-ItemProperty -Path $searchKey -Name \"ConnectedSearchUseWeb\" -Value 0 -Type DWord -Force\n\nWrite-Output \"[+] Debloat complete. Creating DeployForge completion marker...\"\n$tagDir = \"$env:ProgramData\\DeployForge\\Scripts\"\nif (!(Test-Path $tagDir)) { New-Item -Path $tagDir -ItemType Directory -Force | Out-Null }\nSet-Content -Path \"$tagDir\\ps-debloat-windows11.tag\" -Value \"Installed: $(Get-Date -Format 'o')\" -Force\nexit 0\n",
+      "tag_file": "ps-debloat-windows11.tag"
+    },
+    {
+      "id": "ps-configure-ntp-timesync",
+      "name": "Configure Enterprise NTP & Time Sync",
+      "category": "Fleet Hardening",
+      "publisher": "DeployForge IT Toolkit",
+      "version": "1.1.0",
+      "description": "Configures Windows Time service (w32time) to synchronize with pool.ntp.org and sets automatic service startup.",
+      "icon": "Clock",
+      "script": "<#\n.SYNOPSIS\n    Configure NTP Time Synchronization\n#>\n$ErrorActionPreference = 'Stop'\nWrite-Output \"[*] Configuring Windows Time Service...\"\n\nSet-Service -Name w32time -StartupType Automatic\nStart-Service -Name w32time -ErrorAction SilentlyContinue\n\nw32tm /config /syncfromflags:manual /manualpeerlist:\"pool.ntp.org,0x8 time.windows.com,0x8\" /reliable:yes /update\nw32tm /resync /rediscover\n\nWrite-Output \"[+] NTP configured successfully.\"\n$tagDir = \"$env:ProgramData\\DeployForge\\Scripts\"\nif (!(Test-Path $tagDir)) { New-Item -Path $tagDir -ItemType Directory -Force | Out-Null }\nSet-Content -Path \"$tagDir\\ps-configure-ntp-timesync.tag\" -Value \"Installed: $(Get-Date -Format 'o')\" -Force\nexit 0\n",
+      "tag_file": "ps-configure-ntp-timesync.tag"
+    },
+    {
+      "id": "ps-enable-rdp-nla",
+      "name": "Enable Remote Desktop with NLA",
+      "category": "Fleet Hardening",
+      "publisher": "DeployForge IT Toolkit",
+      "version": "1.2.0",
+      "description": "Enables Windows Remote Desktop Protocol (RDP) requiring Network Level Authentication (NLA) and opens Windows Firewall rules.",
+      "icon": "ShieldCheck",
+      "script": "<#\n.SYNOPSIS\n    Enable RDP with Network Level Authentication\n#>\n$ErrorActionPreference = 'Stop'\nWrite-Output \"[*] Enabling RDP and Network Level Authentication...\"\n\n# Enable Terminal Server\nSet-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name \"fDenyTSConnections\" -Value 0 -Type DWord -Force\n\n# Enable NLA (UserAuthentication = 1)\nSet-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name \"UserAuthentication\" -Value 1 -Type DWord -Force\n\n# Enable Windows Defender Firewall Rule for RDP\nEnable-NetFirewallRule -DisplayGroup \"Remote Desktop\" -ErrorAction SilentlyContinue\n\nWrite-Output \"[+] Remote Desktop secured and enabled.\"\n$tagDir = \"$env:ProgramData\\DeployForge\\Scripts\"\nif (!(Test-Path $tagDir)) { New-Item -Path $tagDir -ItemType Directory -Force | Out-Null }\nSet-Content -Path \"$tagDir\\ps-enable-rdp-nla.tag\" -Value \"Installed: $(Get-Date -Format 'o')\" -Force\nexit 0\n",
+      "tag_file": "ps-enable-rdp-nla.tag"
+    },
+    {
+      "id": "ps-install-winget-cli",
+      "name": "Bootstrap WinGet & App Installer",
+      "category": "Endpoint Management",
+      "publisher": "DeployForge IT Toolkit",
+      "version": "2.0.0",
+      "description": "Bootstraps Microsoft.DesktopAppInstaller and prerequisites to ensure winget.exe CLI is available on all machines.",
+      "icon": "Terminal",
+      "script": "<#\n.SYNOPSIS\n    Install and Bootstrap Windows Package Manager (winget)\n#>\n$ErrorActionPreference = 'SilentlyContinue'\nWrite-Output \"[*] Checking winget installation...\"\n\n$winget = Get-Command \"winget.exe\" -ErrorAction SilentlyContinue\nif (-not $winget) {\n    Write-Output \"[*] Installing VCLibs and UI.Xaml prerequisites...\"\n    $vcLibsUrl = \"https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx\"\n    $xamlUrl = \"https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx\"\n    $wingetUrl = \"https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle\"\n\n    $tmp = \"$env:TEMP\\winget_bootstrap\"\n    New-Item -Path $tmp -ItemType Directory -Force | Out-Null\n\n    Invoke-WebRequest -Uri $vcLibsUrl -OutFile \"$tmp\\vclibs.appx\"\n    Add-AppxPackage -Path \"$tmp\\vclibs.appx\"\n\n    Invoke-WebRequest -Uri $xamlUrl -OutFile \"$tmp\\xaml.appx\"\n    Add-AppxPackage -Path \"$tmp\\xaml.appx\"\n\n    Invoke-WebRequest -Uri $wingetUrl -OutFile \"$tmp\\winget.msixbundle\"\n    Add-AppxPackage -Path \"$tmp\\winget.msixbundle\"\n\n    Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue\n}\n\nWrite-Output \"[+] WinGet setup completed.\"\n$tagDir = \"$env:ProgramData\\DeployForge\\Scripts\"\nif (!(Test-Path $tagDir)) { New-Item -Path $tagDir -ItemType Directory -Force | Out-Null }\nSet-Content -Path \"$tagDir\\ps-install-winget-cli.tag\" -Value \"Installed: $(Get-Date -Format 'o')\" -Force\nexit 0\n",
+      "tag_file": "ps-install-winget-cli.tag"
+    },
+    {
+      "id": "ps-clear-caches-temp",
+      "name": "Clear Windows Caches & Temp Junk",
+      "category": "System Maintenance",
+      "publisher": "DeployForge IT Toolkit",
+      "version": "1.0.5",
+      "description": "Purges Windows Temp, SoftwareDistribution download cache, and crash dumps to free up SSD storage.",
+      "icon": "Sparkles",
+      "script": "<#\n.SYNOPSIS\n    Clear Temp and SoftwareDistribution Cache\n#>\nWrite-Output \"[*] Cleaning temporary directories...\"\n$dirs = @(\"$env:WINDIR\\Temp\", \"$env:TEMP\", \"$env:WINDIR\\SoftwareDistribution\\Download\")\n\nforeach ($d in $dirs) {\n    if (Test-Path $d) {\n        Get-ChildItem -Path $d -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue\n    }\n}\n\nWrite-Output \"[+] Cleaned up temporary caches.\"\n$tagDir = \"$env:ProgramData\\DeployForge\\Scripts\"\nif (!(Test-Path $tagDir)) { New-Item -Path $tagDir -ItemType Directory -Force | Out-Null }\nSet-Content -Path \"$tagDir\\ps-clear-caches-temp.tag\" -Value \"Installed: $(Get-Date -Format 'o')\" -Force\nexit 0\n",
+      "tag_file": "ps-clear-caches-temp.tag"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "baseline-standard-office",
+      "name": "Standard Office Fleet",
+      "description": "Essential productivity software stack for corporate office knowledge workers.",
+      "badge": "Standard",
+      "icon": "Briefcase",
+      "app_ids": [
+        "google-chrome",
+        "adobe-acrobat-reader",
+        "zoom-workplace",
+        "7zip"
+      ]
+    },
+    {
+      "id": "baseline-developer-workstation",
+      "name": "Developer Workstation",
+      "description": "Full-stack engineering baseline with code editors, runtime environments, and shell tooling.",
+      "badge": "Engineering",
+      "icon": "Code",
+      "app_ids": [
+        "visual-studio-code",
+        "git",
+        "powertoys",
+        "python-3",
+        "notepad-plus-plus"
+      ]
+    },
+    {
+      "id": "baseline-sysadmin-secops",
+      "name": "SysAdmin & SecOps Suite",
+      "description": "Advanced diagnostic, remote administration, and packet inspection utilities.",
+      "badge": "IT SecOps",
+      "icon": "ShieldAlert",
+      "app_ids": [
+        "sysinternals-suite",
+        "7zip",
+        "notepad-plus-plus"
+      ]
+    }
+  ],
+  "tenant_profiles": [
+    {
+      "id": "sandbox-tenant-12345",
+      "name": "Contoso Corp (Sandbox)",
+      "mode": "simulation",
+      "tenant_id": "sandbox-tenant-12345",
+      "client_id": "mock-client-id-001",
+      "is_active": true
+    },
+    {
+      "id": "acme-corp-prod",
+      "name": "Acme Corp (Production)",
+      "mode": "live",
+      "tenant_id": "89b53874-5111-4f81-8fb7-449339e14511",
+      "client_id": "acme-client-id",
+      "is_active": false
+    },
+    {
+      "id": "fabrikam-msp-client",
+      "name": "Fabrikam Ltd (MSP Client)",
+      "mode": "live",
+      "tenant_id": "31b14a90-3342-411a-a1e4-857c79313abc",
+      "client_id": "fabrikam-client-id",
+      "is_active": false
+    }
+  ],
+  "current_tenant_session": {
+    "connected": true,
+    "mode": "simulation",
+    "tenant_name": "Contoso Corp (Sandbox)",
+    "tenant_id": "sandbox-tenant-12345",
+    "access_token": null,
+    "user_email": "admin@contoso.onmicrosoft.com"
+  }
+}

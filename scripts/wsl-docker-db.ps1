@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    DeployForge - WSL Docker PostgreSQL Database Controller
+    TCT DeployForge - WSL Docker PostgreSQL Database Controller
 .DESCRIPTION
     Manages the optimized PostgreSQL 16 container running in WSL Docker.
     Supports: up, down, status, logs, psql
@@ -19,7 +19,7 @@ Set-Location $rootDir
 $wslPath = (wsl wslpath -u ($rootDir -replace '\\', '/')).Trim()
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host " DeployForge - WSL Docker PostgreSQL 16 Controller        " -ForegroundColor White
+Write-Host " TCT DeployForge - WSL Docker PostgreSQL 16 Controller        " -ForegroundColor White
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host " Project Path (WSL): $wslPath" -ForegroundColor DarkGray
 Write-Host ""
@@ -33,7 +33,7 @@ switch ($Action) {
         $healthy = $false
         for ($i = 0; $i -lt 15; $i++) {
             Start-Sleep -Seconds 1
-            $status = (wsl docker inspect --format='{{json .State.Health.Status}}' deployforge_postgres 2>$null) -replace '"',''
+            $status = (wsl docker inspect --format='{{json .State.Health.Status}}' tct-deployforge-postgres 2>$null) -replace '"',''
             if ($status -eq "healthy") {
                 $healthy = $true
                 break
@@ -69,7 +69,7 @@ switch ($Action) {
 
     "status" {
         Write-Host "[*] Container Status:" -ForegroundColor Yellow
-        wsl docker ps --filter "name=deployforge_postgres"
+        wsl docker ps --filter "name=tct-deployforge-postgres"
         Write-Host ""
         Write-Host "[*] Testing Python DB Driver connection..." -ForegroundColor Yellow
         $code = @'
@@ -83,12 +83,12 @@ print(json.dumps(check_db_health(), indent=2))
     }
 
     "logs" {
-        wsl docker logs -f --tail=100 deployforge_postgres
+        wsl docker logs -f --tail=100 tct-deployforge-postgres
     }
 
     "psql" {
         Write-Host "[*] Opening interactive psql shell..." -ForegroundColor Cyan
-        wsl docker exec -it deployforge_postgres psql -U deployforge -d deployforge
+        wsl docker exec -it tct-deployforge-postgres psql -U deployforge -d deployforge
     }
 
     "check" {

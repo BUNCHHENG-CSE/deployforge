@@ -1,52 +1,73 @@
-# DeployForge - 1-Click Startup Script
-$Host.UI.RawUI.WindowTitle = "DeployForge - Intune One-Click Deploy Tool"
+# TCT DeployForge - 1-Click Startup Script (Next.js Full Stack + Bun)
+param(
+    [switch]$Prod,
+    [switch]$Postgres,
+    [switch]$Sqlite,
+    [int]$Port = 3000
+)
+
+$Host.UI.RawUI.WindowTitle = "TCT DeployForge - Intune Next.js Full Stack Platform"
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "  DeployForge - Intune One-Click App Deploy Platform      " -ForegroundColor White
+Write-Host "  TCT DeployForge - Next.js Full Stack App Deploy Platform    " -ForegroundColor White
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host ""
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 Set-Location $rootDir
 
-# Check Python
-if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-    Write-Host "[!] Python is not installed or not in PATH." -ForegroundColor Red
+# Check Bun
+$hasBun = Get-Command bun -ErrorAction SilentlyContinue
+if (-not $hasBun) {
+    Write-Host "[!] Bun runtime is not found in PATH." -ForegroundColor Red
+    Write-Host "    Install Bun from https://bun.sh/ or run with Node.js." -ForegroundColor Yellow
     exit 1
 }
 
-# Check Node
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-    Write-Host "[!] Node.js is not installed or not in PATH." -ForegroundColor Red
-    exit 1
+# Determine database engine from params or .env
+$envFile = Join-Path $rootDir ".env"
+$dbType = "sqlite" # Default for local dev
+if (Test-Path $envFile) {
+    $envContent = Get-Content $envFile
+    $dbTypeLine = $envContent | Where-Object { $_ -match "^DB_TYPE\s*=\s*(.+)$" }
+    if ($dbTypeLine) {
+        $dbType = ($dbTypeLine -split "=")[1].Trim().ToLower()
+    }
 }
 
-# Ensure frontend build exists
-$distFolder = Join-Path $rootDir "frontend\dist"
-if (-not (Test-Path $distFolder)) {
-    Write-Host "[*] Building frontend assets..." -ForegroundColor Yellow
-    Set-Location (Join-Path $rootDir "frontend")
-    node node_modules/vite/bin/vite.js build
-    Set-Location $rootDir
+if ($Sqlite) {
+    $env:DB_TYPE = "sqlite"
+    $dbType = "sqlite"
+} elseif ($Postgres) {
+    $env:DB_TYPE = "postgresql"
+    $dbType = "postgresql"
 }
 
-# Ensure WSL Docker PostgreSQL is running
-$dbCheck = (wsl docker inspect --format='{{json .State.Health.Status}}' deployforge_postgres 2>$null) -replace '"',''
-if ($dbCheck -ne "healthy") {
-    Write-Host "[*] Initializing optimized PostgreSQL in WSL Docker..." -ForegroundColor Yellow
-    & "$PSScriptRoot\wsl-docker-db.ps1" up
+if ($dbType -eq "postgresql") {
+    Write-Host "[*] Database Mode: PostgreSQL (Neon / Production)" -ForegroundColor Cyan
 } else {
-    Write-Host "[+] PostgreSQL 16 container is healthy." -ForegroundColor Green
+    Write-Host "[+] Database Mode: Local SQLite (Zero-Dependency)" -ForegroundColor Green
+    Write-Host "    File: deployforge.db" -ForegroundColor Gray
 }
 
-Write-Host "[+] Starting DeployForge Unified Engine..." -ForegroundColor Green
-Write-Host "    Web Interface: http://localhost:8000" -ForegroundColor Cyan
-Write-Host "    API Documentation: http://localhost:8000/docs" -ForegroundColor Cyan
-Write-Host "    Database Status:   http://localhost:8000/api/db/health" -ForegroundColor Cyan
+# Prepare Database Schema & Prisma Client
+Write-Host "[*] Synchronizing Prisma ORM schema & Client..." -ForegroundColor Yellow
+bun run db:prepare
+
+Write-Host "`n[+] Starting TCT DeployForge Next.js All-in-One Engine..." -ForegroundColor Green
+Write-Host "    Web Interface:     http://localhost:$Port" -ForegroundColor Cyan
+Write-Host "    Database Status:   http://localhost:$Port/api/db/health" -ForegroundColor Cyan
+Write-Host "    Prisma Status:     http://localhost:$Port/api/prisma/health" -ForegroundColor Cyan
+Write-Host "    Database GUI:      bun run db:studio (http://localhost:5555)" -ForegroundColor Cyan
 Write-Host ""
 
 # Launch browser automatically
-Start-Process "http://localhost:8000"
+Start-Process "http://localhost:$Port"
 
-# Start uvicorn
-python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+if ($Prod) {
+    Write-Host "[*] Building and starting production server..." -ForegroundColor Yellow
+    bun run build
+    bunx next start -p $Port
+} else {
+    bunx next dev -p $Port
+}

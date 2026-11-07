@@ -1,12 +1,15 @@
-# DeployForge — Intune One-Click App Deploy Platform
+# TCT DeployForge — Intune One-Click App Deploy Platform (Next.js All-in-One Full Stack)
 
-[![Tests](https://img.shields.io/badge/tests-9%20passed-brightgreen.svg)]()
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)]()
-[![React](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react&logoColor=black)]()
+[![Next.js](https://img.shields.io/badge/Next.js-16.4.3-black.svg?logo=next.js&logoColor=white)]()
+[![Bun](https://img.shields.io/badge/Bun-1.4.0-FBF0DF.svg?logo=bun&logoColor=black)]()
+[![React](https://img.shields.io/badge/React-19-61DAFB.svg?logo=react&logoColor=black)]()
+[![Prisma ORM](https://img.shields.io/badge/Prisma%20ORM-6.4+-2D3748.svg?logo=prisma&logoColor=white)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Cloud-336791.svg?logo=postgresql&logoColor=white)]()
+[![SQLite](https://img.shields.io/badge/SQLite-Local%20Dev-003B57.svg?logo=sqlite&logoColor=white)]()
 [![Microsoft Graph](https://img.shields.io/badge/Microsoft%20Graph-Win32%20LOB-0078D4.svg?logo=microsoft-azure&logoColor=white)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
 
-> **DeployForge** turns a 45–60 minute mechanical repetition loop into a **3-second, one-click automated deployment to Microsoft Intune**. Inspired by the validated micro-SaaS journey of Pckgr (scaling to \$60,000/month ARR by serving SMB sysadmins).
+> **TCT DeployForge** turns a 45–60 minute mechanical repetition loop into a **3-second, one-click automated deployment to Microsoft Intune**. Full-stack, zero-friction, all-in-one Next.js platform powered by Bun and Prisma ORM.
 
 ---
 
@@ -27,48 +30,74 @@ Deploying a standard Windows desktop application (`.exe` or `.msi`) through Micr
 9. Manually assign to Entra ID security groups
 ```
 
-**DeployForge solves this completely:**
-1. **Curated 1-Click Catalog**: Select from 60+ pre-vetted enterprise apps (Chrome, VS Code, Git, Zoom, 7-Zip, PowerToys, etc.) with pre-configured silent switches and detection rules.
-2. **Universal Custom Packager**: Drag and drop any custom `.exe` or `.msi`. The engine auto-inspects PE headers, detects the installer engine (Inno Setup, NSIS, WiX, MSI, InstallShield, Squirrel), extracts ProductCode GUIDs, and auto-generates silent install commands and detection rules.
-3. **Native Specification-Compliant `.intunewin` Engine**: Uses pure cryptographic algorithms (AES-256-CBC, random IV, HMAC-SHA256, PKCS7, and `Detection.xml`) without requiring Windows-only binaries.
-4. **Direct Graph API & Azure Blob Chunk Uploader**: Automatically creates `win32LobApp`, uploads encrypted content chunks to Azure Blob Storage via SAS URI, commits HMAC digest, and assigns to Entra ID groups.
-5. **Production-Tuned PostgreSQL Database & WSL Docker**: Fully optimized PostgreSQL 16 persistence with connection pooling (`QueuePool`), JSONB GIN indexing for detection rules and logs, and automated controller scripts for WSL Docker.
-6. **Interactive Sandbox Simulation**: Test the entire packaging, detection rule generation, and mock Graph deployment without spending on Azure licenses.
+**TCT DeployForge solves this completely:**
+1. **Curated 1-Click Catalog & Fleet Baselines**: Select from 24+ pre-vetted enterprise apps or deploy entire Workstation Fleet Baselines (Developer Stack, Standard Office, SysAdmin Suite) with a single click.
+2. **Multi-App Batch Deployment Cart**: Check multiple applications and roll them out concurrently to any Entra ID group with a unified batch queue.
+3. **WinGet 5,000+ Package Repository Integration**: Live search across the Windows Package Manager repository; automatically derive silent flags and vendor CDN manifests for immediate deployment.
+4. **PowerShell Script & Remediation Studio**: Package raw `.ps1` automation scripts into native AES-256 `.intunewin` containers with execution policy bypass, exit-code tracking, and automatic tag-file detection rules.
+5. **Universal Custom Packager & Rule Simulator**: Drag and drop custom `.exe` or `.msi` installers. Built-in interactive simulator validates detection rules (Registry, File, MSI, PowerShell) before deployment to prevent `0x87D1041C` failures.
+6. **MSP Multi-Tenant Profile Switcher**: Instantly switch between Sandbox, Internal Corporate IT, and Client Tenants with 1-click Lighthouse-style profile management.
+7. **Native Specification-Compliant `.intunewin` Engine**: Pure TypeScript cryptographic implementation (AES-256-CBC, random IV, HMAC-SHA256, PKCS7, and `Detection.xml`) without requiring Windows-only binaries.
+8. **Direct Graph API & Azure Blob Chunk Uploader**: Automatically creates `win32LobApp`, uploads encrypted content chunks to Azure Blob Storage via SAS URI, commits HMAC digest, and assigns to Entra ID groups.
+9. **Next-Generation Prisma ORM**: Unified data layer supporting **Neon PostgreSQL** in production and **SQLite** locally with zero extra dependencies.
+10. **Interactive Sandbox Simulation**: Test the entire packaging, detection rule generation, and mock Graph deployment without spending on Azure licenses.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture: All-in-One Next.js Full Stack
 
 ```
-DeployForge
-├── Frontend (React 18 + TypeScript + Vite + Tailwind CSS + Lucide)
-│   ├── App Catalog (60+ enterprise apps with search & categories)
-│   ├── Custom Package Wizard (Drag-and-drop PE/MSI inspector)
-│   ├── Deployment Pipeline Tracker (6-phase stepper & SSE live console)
-│   ├── Intune Inventory (Live Win32 apps viewer)
-│   └── Tenant Modal (Device Code OAuth & Service Principal)
-│
-├── Backend (Python 3.12+ / FastAPI + Cryptography + Pydantic + SQLAlchemy 2.0)
-│   ├── /api/catalog          -> Curated enterprise app repository
-│   ├── /api/upload           -> Binary inspection (PE headers & MSI database)
-│   ├── /api/deploy           -> Multi-phase asynchronous deployment pipeline
-│   ├── /api/jobs/{id}/stream -> Real-time Server-Sent Events (SSE) log stream
-│   ├── /api/tenant/*         -> Entra ID OAuth (Device Code & App Registration)
-│   ├── /api/db/health        -> PostgreSQL connection latency and pool stats
-│   └── /api/packages/download-> Download compiled .intunewin directly
-│
-├── Database Layer (PostgreSQL 16 Alpine + WSL Docker)
-│   ├── models.py             -> Tenants, DeploymentJobs, CustomPackages
-│   ├── repository.py         -> High-speed data access layer
-│   ├── session.py            -> Connection pool (QueuePool, pre-ping, auto-recycle)
-│   ├── postgresql.conf       -> Production tuning (shared_buffers, random_page_cost)
-│   └── init.sql              -> Schema, pgcrypto, GIN indexes, seed tenant
-│
-└── Core Engines
-    ├── packager.py           -> Native AES-256-CBC + HMAC-SHA256 .intunewin generator
-    ├── analyzer.py           -> PE/MSI binary classifier & silent command generator
-    ├── graph_client.py       -> Microsoft Graph API & Azure Blob chunk uploader
-    └── catalog.py            -> 60+ enterprise software profiles
+TCT DeployForge (Next.js Full Stack)
+├── src/
+│   ├── app/                                 # Next.js App Router
+│   │   ├── api/                             # Unified Full-Stack Backend API
+│   │   │   ├── catalog/                     # Curated enterprise apps & fleet baselines
+│   │   │   ├── winget/                      # WinGet ecosystem live search & auto-resolver
+│   │   │   ├── scripts/                     # PowerShell studio & .intunewin packager
+│   │   │   ├── rules/simulate/              # Detection rule simulation engine
+│   │   │   ├── upload/                      # PE & MSI inspection & analysis
+│   │   │   ├── deploy/                      # Single & batch deployment pipeline
+│   │   │   ├── jobs/                        # Job inspection & SSE real-time stream
+│   │   │   ├── tenant/                      # MSP Profiles & Entra ID OAuth
+│   │   │   ├── db/health/                   # Database latency & connection stats
+│   │   │   └── prisma/                      # Prisma query engine metrics & analytics
+│   │   ├── layout.tsx                       # Root layout & dark cyber theme
+│   │   ├── page.tsx                         # Single-page dashboard controller
+│   │   └── globals.css                      # Tailwind CSS v4 styling & glassmorphism
+│   ├── components/                          # React 19 UI Components
+│   │   ├── Navbar.tsx                       # Header navigation & tenant status indicator
+│   │   ├── DashboardView.tsx                # Executive KPIs, Fleet Baselines & error codes
+│   │   ├── CatalogView.tsx                  # 1-Click catalog, WinGet search & batch cart
+│   │   ├── ScriptStudioView.tsx             # PowerShell script packager & deployment
+│   │   ├── CustomPackageWizard.tsx          # Binary inspector & Rule simulator
+│   │   ├── DeploymentTracker.tsx            # Real-time SSE 6-stage pipeline tracker
+│   │   ├── DeployedAppsList.tsx             # Live Intune inventory viewer
+│   │   └── TenantModal.tsx                  # MSP Multi-Tenant switcher & Entra ID OAuth
+│   ├── lib/                                 # Core Server Engines & Data Layer
+│   │   ├── prisma.ts                        # Prisma Client singleton
+│   │   ├── packager.ts                      # Native AES-256-CBC .intunewin generator
+│   │   ├── analyzer.ts                      # PE / MSI binary inspector & switch generator
+│   │   ├── rule-simulator.ts                # Intune detection rule evaluator
+│   │   ├── scripts-library.ts               # PowerShell wrappers & packager
+│   │   ├── graph-client.ts                  # Microsoft Graph API & Azure Blob uploader
+│   │   ├── jobs.ts                          # Deployment Job Manager & SSE broadcaster
+│   │   ├── storage.ts                       # Workspace filesystem manager
+│   │   └── data.ts                          # Seed apps, baselines & tenant data
+│   ├── services/
+│   │   └── api.ts                           # Client-side API caller
+│   └── types/
+│       └── index.ts                         # Complete TypeScript domain contracts
+├── prisma/
+│   ├── schema.sqlite.prisma                 # Schema for Local SQLite development
+│   ├── schema.postgresql.prisma             # Schema for Neon PostgreSQL (Production)
+│   ├── schema.prisma                        # Active synced schema
+│   └── seed.ts                              # Initial tenant database seeder
+├── scripts/
+│   ├── db-prepare.mjs                       # Automatic schema selector based on .env
+│   ├── start.ps1                            # 1-Click Windows PowerShell launcher
+│   └── prisma-studio.ps1                    # Visual Database Inspector launcher
+├── Dockerfile                               # Production multi-stage Bun container
+└── docker-compose.yml                       # Optional local Docker orchestrator
 ```
 
 ---
@@ -76,129 +105,96 @@ DeployForge
 ## 🚀 Quickstart
 
 ### Prerequisites
-- **Python 3.10+**
-- **Node.js 18+**
+- **Bun 1.2+** (Recommended) or **Node.js 20+**
+- Windows 10/11 or Linux/macOS
 
-### 1. One-Click Launch (Windows PowerShell)
-Simply execute the provided startup script:
+### 1. Install Dependencies
+```bash
+bun install
+```
+
+### 2. Configure Database Environment
+Copy the example configuration:
+```bash
+cp .env.example .env
+```
+
+#### Option A: Local Development (SQLite - Zero Setup)
+Keep the default in `.env`:
+```env
+DB_TYPE=sqlite
+DATABASE_URL="file:./deployforge.db"
+```
+Prepare and seed the database:
+```bash
+bun run db:push
+bun run db:seed
+```
+
+#### Option B: Production (Neon PostgreSQL)
+Set in `.env` (or in your hosting provider's environment variables):
+```env
+DB_TYPE=postgresql
+DATABASE_URL="postgresql://<user>:<password>@<neon-hostname>/<dbname>?sslmode=require"
+```
+Run migrations/push:
+```bash
+bun run db:push
+```
+
+### 3. Start the Platform
+```bash
+bun run dev
+```
+Open **[http://localhost:3000](http://localhost:3000)** in your browser!
+
+### 4. 1-Click Launch (Windows PowerShell)
+You can also launch everything with a single command:
 ```powershell
 .\scripts\start.ps1
 ```
-This automatically verifies the WSL Docker PostgreSQL container (booting it if not already running), compiles frontend assets, and starts the unified engine at **`http://localhost:8000`**.
 
 ---
 
-## 🐘 PostgreSQL Optimization & WSL Docker Setup
+## 🛠️ NPM / Bun Scripts Reference
 
-DeployForge uses an enterprise-tuned **PostgreSQL 16 Alpine** database running in WSL Docker on host port **`5433`** (configured specifically to eliminate conflicts with any existing PostgreSQL instance on port `5432`).
-
-### WSL Docker Controller Script
-A dedicated PowerShell management script is included in `scripts/wsl-docker-db.ps1`:
-
-```powershell
-# Start the optimized PostgreSQL container in WSL Docker
-.\scripts\wsl-docker-db.ps1 up
-
-# Check container health, query latency, and connection pool statistics
-.\scripts\wsl-docker-db.ps1 check
-
-# View active container status & JSON health output
-.\scripts\wsl-docker-db.ps1 status
-
-# Stream PostgreSQL logs
-.\scripts\wsl-docker-db.ps1 logs
-
-# Open interactive psql terminal inside the container
-.\scripts\wsl-docker-db.ps1 psql
-
-# Stop the database container
-.\scripts\wsl-docker-db.ps1 down
-```
-
-### Production Optimizations Applied (`docker/postgres/postgresql.conf`)
-- **Memory**: `shared_buffers = 256MB`, `effective_cache_size = 768MB`, `work_mem = 16MB`, `maintenance_work_mem = 64MB`.
-- **NVMe / SSD Storage**: `random_page_cost = 1.1`, `effective_io_concurrency = 200` (eliminates rotational penalty assumptions).
-- **WAL & Checkpoint Smoothing**: `checkpoint_completion_target = 0.9`, `min_wal_size = 512MB`, `max_wal_size = 2GB`, `wal_buffers = 16MB`.
-- **Parallel Workers**: `max_worker_processes = 4`, `max_parallel_workers_per_gather = 2`, `max_parallel_workers = 4`.
-- **JSONB Querying**: Schema features native **GIN (Generalized Inverted Index)** indexing on `detection_rules` and `logs` JSONB arrays for instant search and retrieval.
-- **Connection Pooling**: SQLAlchemy `QueuePool` with `pool_size=20`, `max_overflow=10`, `pool_pre_ping=True` (discards dead sockets), and `pool_recycle=1800` (prevents cloud firewall NAT timeouts).
+| Command | Action |
+|---|---|
+| `bun run dev` | Prepares active database schema and starts Next.js dev server with Turbopack |
+| `bun run build` | Builds optimized standalone production Next.js bundle |
+| `bun run start` | Runs the compiled Next.js production server |
+| `bun run db:prepare` | Auto-detects SQLite vs. PostgreSQL (Neon) and updates `prisma/schema.prisma` |
+| `bun run db:push` | Syncs schema directly to local SQLite or Neon PostgreSQL |
+| `bun run db:generate` | Regenerates Prisma Client types |
+| `bun run db:seed` | Seeds initial tenant data |
+| `bun run db:studio` | Launches visual Prisma Studio GUI on `http://localhost:5555` |
 
 ---
 
-### 2. Manual Setup
+## 🔐 Microsoft Intune Authentication Modes
 
-#### Backend:
-```bash
-cd backend
-pip install -r requirements.txt
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+TCT DeployForge includes 3 authentication modes accessible from the top-right tenant badge:
 
-#### Frontend (Development with Hot Reload):
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open **`http://localhost:3000`** in your browser.
+1. **Sandbox Simulation Mode (Default)**:
+   - Instant testing out of the box without needing an Azure account or Intune licenses.
+   - Simulates the entire 6-phase deployment, encrypted blob uploads, and Entra ID group targeting.
+2. **Device Code Flow (Interactive Login)**:
+   - Click "Initiate Login", copy the user code, and authenticate in your browser at `microsoft.com/devicelogin`.
+   - Uses Microsoft Intune PowerShell client ID (`d1ddf0e6-50e0-4d8b-924c-0c15012899c4`).
+3. **Service Principal (Client Credentials)**:
+   - Production CI/CD flow using Tenant ID, Client ID, and Client Secret with `DeviceManagementApps.ReadWrite.All` permissions.
 
 ---
 
-## 🧪 Running Automated Tests
+## 📦 Native Specification-Compliant `.intunewin` Engine
 
-Run the full pytest suite covering the packager, binary analyzer, and API:
-```powershell
-python -m pytest backend/tests -v
-```
-
-All 9 test suites verify:
-- Spec-compliant `.intunewin` packaging, AES-256 decryption, and HMAC integrity
-- PE binary version & architecture extraction
-- MSI ProductCode GUID pattern extraction
-- Catalog query and category filtering
-- Graph API simulation & live job SSE streaming
+TCT DeployForge generates authentic Microsoft `.intunewin` files directly in pure TypeScript without executing `IntuneWinAppUtil.exe`:
+- **Algorithm**: `AES-256-CBC` encryption with PKCS7 padding and cryptographic random 16-byte IV.
+- **Integrity**: `HMAC-SHA256` computed over the ciphertext.
+- **Manifest**: Constructs XML specification document `Detection.xml` including `UnencryptedContentSize`, `FileName`, and `EncryptionInfo`.
+- **Packaging**: Packs the manifest and `<setup_file>.intunewin` into a ZIP archive container.
 
 ---
 
-## 🔐 Microsoft Entra ID / Intune Setup Guide
-
-DeployForge supports two connection modes:
-
-### Mode 1: Device Code Flow (Zero Setup for Admins)
-1. In DeployForge, click the **Tenant Status** badge in the navbar.
-2. Select **Device Login** and click **Generate Device Login Code**.
-3. Open `https://microsoft.com/devicelogin`, enter the displayed code, and sign in with your Intune administrator credentials.
-4. DeployForge instantly receives the delegated token with `DeviceManagementApps.ReadWrite.All`.
-
-### Mode 2: Azure App Registration (Unattended / CI/CD)
-1. Go to **Microsoft Entra Admin Center** -> **App registrations** -> **New registration**.
-2. Name it `DeployForge-Intune` and register.
-3. Under **API permissions**, click **Add a permission** -> **Microsoft Graph** -> **Application permissions**:
-   - `DeviceManagementApps.ReadWrite.All`
-   - `Group.Read.All`
-4. Click **Grant admin consent for your organization**.
-5. Under **Certificates & secrets**, create a new **Client secret**.
-6. In DeployForge, enter your **Tenant ID**, **Client ID**, and **Client Secret**.
-
-### Mode 3: Sandbox Simulation Mode
-- Included by default. Test real packaging, download `.intunewin` files, and evaluate the full user journey without needing an Azure account.
-
----
-
-## 💡 Revenue & Go-to-Market Playbook
-
-Based on Tom's validated \$60k/month Pckgr blueprint:
-
-1. **Phase 1: Free Community MVP & Feedback (Month 1)**
-   - Post free tool link in **r/sysadmin**, **r/Intune**, and MSP Reddit communities (`r/msp`).
-   - Frame as: *"I got sick of spending 45 minutes manually packaging Chrome and Zoom for Intune, so I built a free 1-click web packager. Tear it apart."*
-   - Measure: Wait for users to request automated updates or private repositories.
-
-2. **Phase 2: YouTube Microsoft MVP Strategy (Month 2–3)**
-   - Reach out to popular Intune / Enterprise Mobility MVPs on YouTube (e.g., Intune Training channel, Dean Cefola / Azure Academy).
-   - Offer lifetime free access for an honest walkthrough video. High-intent evergreen search traffic from "How to deploy app to Intune" converts continuously.
-
-3. **Phase 3: Subscription Pricing (\$25 / \$75 / \$199 per month)**
-   - **Free Tier**: 3 apps per month, manual download of `.intunewin`.
-   - **Pro Tier (\$25/mo)**: Unlimited 1-click push to 1 Intune tenant, automated update alerts.
-   - **MSP / Enterprise Tier (\$99–\$199/mo)**: Multi-tenant Intune management (Lighthouse-style), automated scheduled updates, custom repository.
+## 📄 License
+MIT License. Created for IT Operations & Modern Endpoint Management.

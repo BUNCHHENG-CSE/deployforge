@@ -1,5 +1,5 @@
 # Test Runner Script
-Write-Host "[*] Running DeployForge Automated Tests..." -ForegroundColor Cyan
+Write-Host "[*] Running TCT DeployForge Automated Tests..." -ForegroundColor Cyan
 
 $rootDir = Split-Path -Parent $PSScriptRoot
 Set-Location $rootDir

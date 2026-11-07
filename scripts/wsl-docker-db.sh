@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# DeployForge - PostgreSQL Management Script for WSL / Linux
+# TCT DeployForge - PostgreSQL Management Script for WSL / Linux
 
 ACTION="${1:-up}"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo -e "\033[1;36m==========================================================\033[0m"
-echo -e "\033[1;37m DeployForge - WSL Docker PostgreSQL 16 Controller        \033[0m"
+echo -e "\033[1;37m TCT DeployForge - WSL Docker PostgreSQL 16 Controller        \033[0m"
 echo -e "\033[1;36m==========================================================\033[0m"
 
 case "$ACTION" in
@@ -19,13 +19,13 @@ case "$ACTION" in
         cd "$DIR" && docker compose stop postgres
         ;;
     status)
-        docker ps --filter "name=deployforge_postgres"
+        docker ps --filter "name=tct-deployforge-postgres"
         ;;
     logs)
-        docker logs -f --tail=100 deployforge_postgres
+        docker logs -f --tail=100 tct-deployforge-postgres
         ;;
     psql)
-        docker exec -it deployforge_postgres psql -U deployforge -d deployforge
+        docker exec -it tct-deployforge-postgres psql -U deployforge -d deployforge
         ;;
     *)
         echo "Usage: $0 {up|down|status|logs|psql}"

@@ -1,28 +1,120 @@
-# Dependencies
+# ==============================================================================
+# DeployForge - Optimized .gitignore
+# Next.js + Vite/React + FastAPI/Python + Prisma + Intune Packaging
+# ==============================================================================
+
+# --- Dependencies ---
 node_modules/
-__pycache__/
-*.pyc
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+bun.lock*
 
-# Builds
+# --- Build & Output Folders ---
 dist/
+dist-ssr/
 build/
-*.egg-info/
+out/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.turbo/
+.cache/
 
-# Tests & Caches
-.pytest_cache/
+# --- Python & Virtual Environments ---
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# --- Testing, Linting & Coverage ---
+coverage/
 .coverage
+.coverage.*
 htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.nyc_output/
 
-# Workspace transients
-workspace/uploads/*
-workspace/packages/*
-workspace/downloads/*
-!workspace/uploads/.gitkeep
-!workspace/packages/.gitkeep
-!workspace/downloads/.gitkeep
+# --- Databases & Local Storage ---
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
 
-# Environment
+# --- DeployForge Workspace & Intune Packaging Artifacts ---
+# Ignore compiled Intune Win32 packages (.intunewin) and download payloads anywhere
+*.intunewin
+
+# Ignore workspace files while preserving directory structure via .gitkeep
+workspace/*
+!workspace/*/
+!workspace/**/.gitkeep
+workspace/*/*
+!workspace/*/.gitkeep
+
+backend/workspace/*
+!backend/workspace/*/
+!backend/workspace/**/.gitkeep
+backend/workspace/*/*
+!backend/workspace/*/.gitkeep
+
+# --- Environment & Secret Credentials ---
 .env
-.env.local
+.env*.local
+.env.backup
+.env.vault
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+
+# --- Logs & Runtime Diagnostics ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Operating System & Editor Files ---
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# IDEs & Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
+.vercel

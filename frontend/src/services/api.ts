@@ -1,15 +1,104 @@
-import { CatalogApp, InstallerAnalysis, EntraGroup, DeploymentJob, TenantStatus, DetectionRule } from '../types';
+import {
+  CatalogApp,
+  InstallerAnalysis,
+  EntraGroup,
+  DeploymentJob,
+  TenantStatus,
+  DetectionRule,
+  FleetBaseline,
+  WinGetPackage,
+  CuratedScript,
+  RuleSimulationResult,
+  TenantProfile
+} from '../types';
 
 const API_BASE = '/api';
 
 export const ApiService = {
-  // Catalog
+  // Catalog & Baselines
   async getCatalog(query?: string, category?: string): Promise<{ apps: CatalogApp[]; categories: string[]; total: number }> {
     const params = new URLSearchParams();
     if (query) params.append('query', query);
     if (category) params.append('category', category);
     const res = await fetch(`${API_BASE}/catalog?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to fetch catalog');
+    return res.json();
+  },
+
+  async getFleetBaselines(): Promise<FleetBaseline[]> {
+    const res = await fetch(`${API_BASE}/catalog/baselines`);
+    if (!res.ok) throw new Error('Failed to fetch fleet baselines');
+    const data = await res.json();
+    return data.baselines || [];
+  },
+
+  // WinGet Integration
+  async searchWinGet(query: string): Promise<WinGetPackage[]> {
+    const res = await fetch(`${API_BASE}/winget/search?query=${encodeURIComponent(query)}`);
+    if (!res.ok) throw new Error('Failed to search WinGet');
+    const data = await res.json();
+    return data.packages || [];
+  },
+
+  async getWinGetPackage(packageId: string): Promise<CatalogApp> {
+    const res = await fetch(`${API_BASE}/winget/${encodeURIComponent(packageId)}`);
+    if (!res.ok) throw new Error('Failed to fetch WinGet package');
+    return res.json();
+  },
+
+  // PowerShell Script Studio
+  async getCuratedScripts(): Promise<CuratedScript[]> {
+    const res = await fetch(`${API_BASE}/scripts/curated`);
+    if (!res.ok) throw new Error('Failed to fetch curated scripts');
+    const data = await res.json();
+    return data.scripts || [];
+  },
+
+  async packageScript(payload: {
+    script_id: string;
+    script_name: string;
+    script_content: string;
+    version?: string;
+  }): Promise<{ intunewin_filename: string; install_command: string; uninstall_command: string; detection_rule: DetectionRule }> {
+    const res = await fetch(`${API_BASE}/scripts/package`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Failed to package PowerShell script');
+    return res.json();
+  },
+
+  async deployScript(payload: {
+    script_id: string;
+    script_name: string;
+    script_content: string;
+    version?: string;
+    publisher?: string;
+    description?: string;
+    target_group_id: string;
+    assignment_intent: string;
+  }): Promise<{ job_id: string; status: string; script_name: string; intunewin_filename: string }> {
+    const res = await fetch(`${API_BASE}/scripts/deploy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Deploy script failed' }));
+      throw new Error(err.detail || 'Deploy script failed');
+    }
+    return res.json();
+  },
+
+  // Detection Rule Simulator
+  async simulateDetectionRule(rule: DetectionRule): Promise<RuleSimulationResult> {
+    const res = await fetch(`${API_BASE}/rules/simulate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rule }),
+    });
+    if (!res.ok) throw new Error('Failed to simulate detection rule');
     return res.json();
   },
 
@@ -28,10 +117,25 @@ export const ApiService = {
     return res.json();
   },
 
-  // Tenant Authentication
+  // Tenant Authentication & MSP Profiles
   async getTenantStatus(): Promise<TenantStatus> {
     const res = await fetch(`${API_BASE}/tenant/status`);
     if (!res.ok) throw new Error('Failed to fetch tenant status');
+    return res.json();
+  },
+
+  async listTenantProfiles(): Promise<TenantProfile[]> {
+    const res = await fetch(`${API_BASE}/tenant/profiles`);
+    if (!res.ok) throw new Error('Failed to fetch tenant profiles');
+    const data = await res.json();
+    return data.profiles || [];
+  },
+
+  async activateTenantProfile(profileId: string): Promise<any> {
+    const res = await fetch(`${API_BASE}/tenant/profiles/${encodeURIComponent(profileId)}/activate`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error('Failed to activate tenant profile');
     return res.json();
   },
 
@@ -89,25 +193,8 @@ export const ApiService = {
     return data.apps || [];
   },
 
-  // Deployment
-  async triggerDeploy(payload: {
-    catalog_app_id?: string;
-    app_name: string;
-    description?: string;
-    publisher: string;
-    version: string;
-    filename: string;
-    file_token?: string;
-    download_url?: string;
-    architecture: string;
-    install_command: string;
-    uninstall_command: string;
-    install_behavior: string;
-    device_restart_behavior: string;
-    detection_rules: DetectionRule[];
-    target_group_id: string;
-    assignment_intent: string;
-  }): Promise<{ job_id: string; status: string; app_name: string }> {
+  // Deployment Single & Batch
+  async triggerDeploy(payload: any): Promise<{ job_id: string; status: string; app_name: string }> {
     const res = await fetch(`${API_BASE}/deploy`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -116,6 +203,24 @@ export const ApiService = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: 'Deploy failed' }));
       throw new Error(err.detail || 'Deploy failed');
+    }
+    return res.json();
+  },
+
+  async triggerBatchDeploy(payload: {
+    apps: any[];
+    target_group_id: string;
+    assignment_intent: string;
+    batch_name?: string;
+  }): Promise<{ batch_id: string; count: number; job_ids: string[]; status: string }> {
+    const res = await fetch(`${API_BASE}/deploy/batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Batch deploy failed' }));
+      throw new Error(err.detail || 'Batch deploy failed');
     }
     return res.json();
   },

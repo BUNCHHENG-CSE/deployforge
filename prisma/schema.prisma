@@ -1,0 +1,72 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tenant {
+  id               String          @id
+  displayName      String          @map("display_name")
+  authMode         String          @default("simulation") @map("auth_mode")
+  clientId         String?         @map("client_id")
+  clientSecret     String?         @map("client_secret")
+  accessToken      String?         @map("access_token")
+  refreshToken     String?         @map("refresh_token")
+  tokenExpiresAt   DateTime?       @map("token_expires_at")
+  isSimulation     Boolean         @default(false) @map("is_simulation")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  jobs             DeploymentJob[]
+
+  @@map("tenants")
+}
+
+model DeploymentJob {
+  jobId                 String       @id @map("job_id")
+  tenantId              String       @map("tenant_id")
+  appName               String       @map("app_name")
+  publisher             String       @map("publisher")
+  version               String       @map("version")
+  status                String       @default("pending") @map("status")
+  progress              Int          @default(0) @map("progress")
+  currentStep           String       @map("current_step")
+  targetGroupId         String       @map("target_group_id")
+  assignmentIntent      String       @default("required") @map("assignment_intent")
+  architecture          String?      @default("x64") @map("architecture")
+  installCommand        String       @map("install_command")
+  uninstallCommand      String       @map("uninstall_command")
+  installBehavior       String?      @default("system") @map("install_behavior")
+  deviceRestartBehavior String?      @default("suppress") @map("device_restart_behavior")
+  detectionRules        String       @default("[]") @map("detection_rules")
+  logs                  String       @default("[]") @map("logs")
+  intunewinFilename     String?      @map("intunewin_filename")
+  intuneAppId           String?      @map("intune_app_id")
+  isSimulation          Boolean      @default(false) @map("is_simulation")
+  error                 String?      @map("error")
+  createdAt             DateTime     @default(now()) @map("created_at")
+  completedAt           DateTime?    @map("completed_at")
+
+  tenant                Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt], map: "idx_jobs_tenant_created")
+  @@index([status], map: "idx_jobs_status")
+  @@index([createdAt], map: "idx_jobs_created_at")
+  @@map("deployment_jobs")
+}
+
+model CustomPackage {
+  id               String       @id @map("id")
+  fileToken        String       @unique @map("file_token")
+  filename         String       @map("filename")
+  sizeBytes        BigInt       @map("size_bytes")
+  fileType         String       @map("file_type")
+  engine           String       @map("engine")
+  analysisMetadata String       @default("{}") @map("analysis_metadata")
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  @@map("custom_packages")
+}

@@ -1,7 +1,8 @@
 services:
+  # Optional local PostgreSQL container if not using remote Neon PostgreSQL
   postgres:
     image: postgres:16-alpine
-    container_name: deployforge_postgres
+    container_name: tct-deployforge-postgres
     restart: unless-stopped
     shm_size: 256mb
     environment:
@@ -28,23 +29,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: deployforge_app
+    container_name: tct-deployforge-app
     restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_TYPE: ${DB_TYPE:-postgresql}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-deployforge}:${POSTGRES_PASSWORD:-deployforge_secret}@postgres:5432/${POSTGRES_DB:-deployforge}}
+    ports:
+      - "3000:3000"
+    volumes:
+      - deployforge_workspace:/app/workspace
+    networks:
+      - deployforge_network
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      ENVIRONMENT: production
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-deployforge}:${POSTGRES_PASSWORD:-deployforge_secret}@postgres:5432/${POSTGRES_DB:-deployforge}
-      PORT: 8000
-    ports:
-      - "8000:8000"
-    volumes:
-      - deployforge_workspace:/app/backend/workspace
-    networks:
-      - deployforge_network
-    profiles:
-      - full-stack # Allows running just db with 'docker compose up -d postgres' or full app
+        required: false
 
 volumes:
   deployforge_pgdata:

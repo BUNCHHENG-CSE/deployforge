@@ -36,6 +36,61 @@ export interface CatalogApp {
   detection_rule: DetectionRule;
 }
 
+export interface FleetBaseline {
+  id: string;
+  name: string;
+  description: string;
+  badge: string;
+  icon: string;
+  app_ids: string[];
+}
+
+export interface WinGetPackage {
+  id: string;
+  name: string;
+  publisher: string;
+  category: string;
+  version: string;
+  architecture: string;
+  icon: string;
+  description: string;
+  download_url: string;
+  filename: string;
+  install_command: string;
+  uninstall_command: string;
+  install_behavior: string;
+  detection_rule: DetectionRule;
+}
+
+export interface CuratedScript {
+  id: string;
+  name: string;
+  category: string;
+  publisher: string;
+  version: string;
+  description: string;
+  icon: string;
+  script: string;
+  tag_file: string;
+}
+
+export interface RuleSimulationResult {
+  detected: boolean;
+  status: 'success' | 'not_detected' | 'simulated_pass' | 'warning' | 'error';
+  message: string;
+  details?: Record<string, any>;
+  recommendation?: string;
+}
+
+export interface TenantProfile {
+  id: string;
+  name: string;
+  mode: 'simulation' | 'live';
+  tenant_id: string;
+  client_id?: string;
+  is_active: boolean;
+}
+
 export interface InstallerAnalysis {
   filename: string;
   file_type: string;

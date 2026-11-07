@@ -1,0 +1,72 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tenant {
+  id               String          @id @db.VarChar(64)
+  displayName      String          @map("display_name") @db.VarChar(255)
+  authMode         String          @default("simulation") @map("auth_mode") @db.VarChar(32)
+  clientId         String?         @map("client_id") @db.VarChar(128)
+  clientSecret     String?         @map("client_secret") @db.Text
+  accessToken      String?         @map("access_token") @db.Text
+  refreshToken     String?         @map("refresh_token") @db.Text
+  tokenExpiresAt   DateTime?       @map("token_expires_at") @db.Timestamptz
+  isSimulation     Boolean         @default(false) @map("is_simulation")
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  jobs             DeploymentJob[]
+
+  @@map("tenants")
+}
+
+model DeploymentJob {
+  jobId                 String       @id @map("job_id") @db.VarChar(64)
+  tenantId              String       @map("tenant_id") @db.VarChar(64)
+  appName               String       @map("app_name") @db.VarChar(255)
+  publisher             String       @map("publisher") @db.VarChar(255)
+  version               String       @map("version") @db.VarChar(64)
+  status                String       @default("pending") @map("status") @db.VarChar(32)
+  progress              Int          @default(0) @map("progress")
+  currentStep           String       @map("current_step") @db.VarChar(255)
+  targetGroupId         String       @map("target_group_id") @db.VarChar(128)
+  assignmentIntent      String       @default("required") @map("assignment_intent") @db.VarChar(32)
+  architecture          String?      @default("x64") @map("architecture") @db.VarChar(32)
+  installCommand        String       @map("install_command") @db.Text
+  uninstallCommand      String       @map("uninstall_command") @db.Text
+  installBehavior       String?      @default("system") @map("install_behavior") @db.VarChar(32)
+  deviceRestartBehavior String?      @default("suppress") @map("device_restart_behavior") @db.VarChar(32)
+  detectionRules        Json         @default("[]") @map("detection_rules")
+  logs                  Json         @default("[]") @map("logs")
+  intunewinFilename     String?      @map("intunewin_filename") @db.VarChar(255)
+  intuneAppId           String?      @map("intune_app_id") @db.VarChar(128)
+  isSimulation          Boolean      @default(false) @map("is_simulation")
+  error                 String?      @map("error") @db.Text
+  createdAt             DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  completedAt           DateTime?    @map("completed_at") @db.Timestamptz
+
+  tenant                Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt(sort: Desc)], map: "idx_jobs_tenant_created")
+  @@index([status], map: "idx_jobs_status")
+  @@index([createdAt(sort: Desc)], map: "idx_jobs_created_at")
+  @@map("deployment_jobs")
+}
+
+model CustomPackage {
+  id               String       @id @map("id") @db.VarChar(64)
+  fileToken        String       @unique @map("file_token") @db.VarChar(64)
+  filename         String       @map("filename") @db.VarChar(255)
+  sizeBytes        BigInt       @map("size_bytes")
+  fileType         String       @map("file_type") @db.VarChar(16)
+  engine           String       @map("engine") @db.VarChar(64)
+  analysisMetadata Json         @default("{}") @map("analysis_metadata")
+  createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("custom_packages")
+}

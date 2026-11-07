@@ -43,6 +43,33 @@ class AppDeployRequest(BaseModel):
     assignment_intent: str = "required" # required | available | uninstall
     is_simulation: Optional[bool] = False
 
+class BatchDeployRequest(BaseModel):
+    apps: List[AppDeployRequest]
+    target_group_id: str = "all-devices"
+    assignment_intent: str = "required"
+    batch_name: Optional[str] = "Workstation Fleet Baseline"
+
+class ScriptDeployRequest(BaseModel):
+    script_id: str
+    script_name: str
+    script_content: str
+    version: str = "1.0.0"
+    publisher: str = "DeployForge Script Engine"
+    description: Optional[str] = "PowerShell Endpoint Automation Script"
+    target_group_id: str = "all-devices"
+    assignment_intent: str = "required"
+
+class RuleSimulationRequest(BaseModel):
+    rule: DetectionRule
+
+class TenantProfile(BaseModel):
+    id: str
+    name: str
+    mode: str = "simulation" # simulation | live
+    tenant_id: str
+    client_id: Optional[str] = None
+    is_active: bool = False
+
 class TenantConnectServicePrincipal(BaseModel):
     tenant_id: str
     client_id: str

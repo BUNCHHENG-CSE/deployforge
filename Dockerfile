@@ -1,46 +1,49 @@
 # ====================================================================
-# Stage 1: Build Frontend Assets
+# TCT DeployForge Next.js All-in-One Full Stack Dockerfile
+# Optimized with Bun Runtime & Multi-Stage Production Build
 # ====================================================================
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
 
-COPY frontend/package*.json ./
-RUN npm ci
-
-COPY frontend/ ./
-RUN node node_modules/typescript/bin/tsc && node node_modules/vite/bin/vite.js build
-
-# ====================================================================
-# Stage 2: Production Python Application Runtime
-# ====================================================================
-FROM python:3.12-slim AS runner
-
+# Stage 1: Dependencies & Build
+FROM oven/bun:1.2-alpine AS builder
 WORKDIR /app
 
-# Install security updates and curl for container healthcheck
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Copy dependency specifications & scripts
+COPY package.json bun.lock ./
+COPY prisma ./prisma/
+COPY scripts ./scripts/
 
-# Install python dependencies
-COPY backend/requirements.txt ./backend/
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN bun install --frozen-lockfile
 
-# Copy backend source
-COPY backend/ ./backend/
+# Copy application sources
+COPY . .
 
-# Copy built frontend assets from stage 1 into frontend/dist
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Generate Prisma Client and build Next.js App
+ENV NODE_ENV=production
+ENV DB_TYPE=postgresql
+RUN bun run db:prepare && bun run build
 
-# Set environment
-ENV PYTHONPATH=/app/backend
-ENV PORT=8000
-ENV ENVIRONMENT=production
+# Stage 2: Production Runtime
+FROM oven/bun:1.2-alpine AS runner
+WORKDIR /app
 
-EXPOSE 8000
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Copy runtime assets from builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lock ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
+
+EXPOSE 3000
 
 HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:3000/api/db/health || exit 1
 
-# Launch uvicorn
-CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["bun", "run", "start"]
