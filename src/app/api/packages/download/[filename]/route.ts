@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
+import path from 'path';
+import { Readable } from 'stream';
 import { StorageManager } from '@/lib/storage';
 
 export async function GET(
@@ -7,19 +9,31 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ) {
   const { filename } = await params;
-  const filePath = StorageManager.getPackagePath(filename);
 
-  if (!fs.existsSync(filePath)) {
+  let filePath: string;
+  try {
+    filePath = StorageManager.getPackagePath(filename);
+  } catch {
+    return NextResponse.json({ detail: 'Invalid filename' }, { status: 400 });
+  }
+
+  let stat: fs.Stats;
+  try {
+    stat = await fs.promises.stat(filePath);
+    if (!stat.isFile()) throw new Error('not a file');
+  } catch {
     return NextResponse.json({ detail: `Package not found: ${filename}` }, { status: 404 });
   }
 
-  const fileBuffer = fs.readFileSync(filePath);
+  // Stream from disk instead of buffering the whole package in memory.
+  const body = Readable.toWeb(fs.createReadStream(filePath)) as ReadableStream<Uint8Array>;
+  const safeName = path.basename(filePath).replace(/"/g, '');
 
-  return new NextResponse(fileBuffer, {
+  return new NextResponse(body, {
     headers: {
       'Content-Type': 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${filename}"`,
-      'Content-Length': fileBuffer.length.toString(),
+      'Content-Disposition': `attachment; filename="${safeName}"`,
+      'Content-Length': stat.size.toString(),
     },
   });
 }

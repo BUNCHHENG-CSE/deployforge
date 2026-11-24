@@ -6,28 +6,47 @@ export const PACKAGES_DIR = path.join(WORKSPACE_DIR, 'packages');
 export const DOWNLOADS_DIR = path.join(WORKSPACE_DIR, 'downloads');
 export const UPLOADS_DIR = path.join(WORKSPACE_DIR, 'uploads');
 
+let initialized = false;
+
+/**
+ * Reduce an untrusted filename to a safe basename so it can never escape its
+ * workspace directory (blocks "../", absolute paths, and Windows separators).
+ */
+export function sanitizeFilename(filename: string): string {
+  const base = path.basename(String(filename).replace(/\\/g, '/'));
+  const cleaned = base.replace(/[\x00-\x1f<>:"|?*]/g, '_').trim();
+  if (!cleaned || cleaned === '.' || cleaned === '..') {
+    throw new Error('Invalid filename');
+  }
+  return cleaned;
+}
+
+function resolveIn(dir: string, filename: string): string {
+  return path.join(dir, sanitizeFilename(filename));
+}
+
 export const StorageManager = {
   init() {
+    if (initialized) return;
     [WORKSPACE_DIR, PACKAGES_DIR, DOWNLOADS_DIR, UPLOADS_DIR].forEach((dir) => {
-      if (!fs.existsSync(/*turbopackIgnore: true*/ dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
+      fs.mkdirSync(/*turbopackIgnore: true*/ dir, { recursive: true });
     });
+    initialized = true;
   },
 
   getPackagePath(filename: string): string {
     this.init();
-    return path.join(PACKAGES_DIR, filename);
+    return resolveIn(PACKAGES_DIR, filename);
   },
 
   getDownloadPath(filename: string): string {
     this.init();
-    return path.join(DOWNLOADS_DIR, filename);
+    return resolveIn(DOWNLOADS_DIR, filename);
   },
 
   getUploadPath(filename: string): string {
     this.init();
-    return path.join(UPLOADS_DIR, filename);
+    return resolveIn(UPLOADS_DIR, filename);
   },
 
   packageExists(filename: string): boolean {

@@ -1,5 +1,6 @@
 import fs from 'fs';
-import path from 'path';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 import { prisma } from './prisma';
 import { StorageManager } from './storage';
 import { IntuneWinPackager } from './packager';
@@ -292,9 +293,12 @@ export class DeploymentJobManager {
         if (req.download_url && !job.is_simulation) {
           this.addLog(jobId, `Downloading installer from vendor CDN: ${req.download_url}`, 'info', 15);
           const dlResp = await fetch(req.download_url);
-          if (!dlResp.ok) throw new Error(`Download failed: ${dlResp.statusText}`);
-          const buffer = Buffer.from(await dlResp.arrayBuffer());
-          fs.writeFileSync(localInstallerPath, buffer);
+          if (!dlResp.ok || !dlResp.body) throw new Error(`Download failed: ${dlResp.statusText}`);
+          // Stream straight to disk so large installers don't sit in memory
+          await pipeline(
+            Readable.fromWeb(dlResp.body as import('stream/web').ReadableStream),
+            fs.createWriteStream(localInstallerPath)
+          );
         } else {
           // Mock / Simulated binary placeholder
           this.addLog(jobId, 'Preparing container binary footprint...', 'info', 15);
